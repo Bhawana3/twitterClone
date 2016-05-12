@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+</head>
+<body>
+<div>
+    <form method="POST" action="/signup">
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <form method="POST" action="/profile">
+        <button type="submit">Profile</button>
+    </form>
+    <div id="container">
+        <form method="POST" action="/tweet">
+            <input name="input_user" type="text" placeholder="Enter Username" required/>
+            <div>
+                <input name="input_tweet" type="text" placeholder="What's on your mind?"/>
+            </div>
+            <div>
+                <button id='submit' type="submit">Tweet</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+
+
+

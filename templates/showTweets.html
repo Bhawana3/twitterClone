@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+<div>
+    <div>
+        {% for username,message in tweet.iteritems() %}
+        <p> {{ username }} </p>
+        <p> {{ message }} </p>
+        <p> {{ time }} </p>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
