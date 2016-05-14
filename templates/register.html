@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <script>
+        function validateEmail(email) {
+            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (re.test(email.value) == false)
+            {
+                alert('Invalid Email Address');
+                return false;
+            }
+            return true;
+            }
+    </script>
+
+</head>
+<body>
+<form action="" method=post class="form-horizontal">
+    <h2>Sign up for Twitter-Clone Application </h2>
+    <div class="control-group">
+        <div class="controls">
+            <input type="text" id="username" name="username" class="input-xlarge"
+                   placeholder="Enter Username" value="{{ request.form.username }}"
+                   required>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <input type="password" id="password" name="password" class="input-xlarge"
+                   placeholder="Enter Password" value="{{ request.form.password }}"
+                   required>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <input type="email" id="email" name="email" class="input-xlarge"
+                   placeholder="Enter Email" value="{{ request.form.username }}"
+                   required>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <button type="submit" class="btn btn-success">Signup</button>
+        </div>
+    </div>
+</form>
+</body>
