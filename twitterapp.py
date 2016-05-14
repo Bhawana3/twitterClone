@@ -2,15 +2,27 @@
 DELIMITER $$
 CREATE
 DEFINER=`root`@`localhost`
-PROCEDURE `create_user`(IN _name VARCHAR(50),IN _username VARCHAR(50),IN _password VARCHAR(20))
+PROCEDURE `register`(IN _username VARCHAR(100),IN _email VARCHAR(100),IN _password VARCHAR(50))
 BEGIN
-    if ( select exists (select 1 from user_table where user_username = _username) ) THEN
+    if ( select exists (select 1 from users where username = _username) ) THEN
         select 'Username Already Exists !!';
     ELSE
-        insert into user_table (user_name,user_username,user_password) values (_name,_username,_password);
+        insert into users (username,email,password) values (_username,_email,_password);
     END IF;
 END$$
 DELIMITER ;
+"""
+
+"""
+| users | CREATE TABLE `users` (
+  `uid` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) NOT NULL,
+  `email` varchar(120) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 |
+
 """
 
 from flask import Flask,request,json,render_template
@@ -26,11 +38,15 @@ def writeTweet():
 def sign_up():
     return render_template('signup.html')
 
+@app.route('/login/')
+def log_in():
+    return render_template('login.html')
+
 mysql = MySQL()
 
 #MySQL Configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '****'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'cutiepie07'
 app.config['MYSQL_DATABASE_DB'] = 'twitter_clone'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -43,12 +59,29 @@ def signUp():
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('create_user',(_username,_email,_password))              #calls procedure createUser
+    cursor.callproc('register',(_username,_email,_password))              #calls procedure createUser
     data = cursor.fetchall()
 
     if len(data) is 0:
         conn.commit()
         return json.dumps({'message':'User created successfully !'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+
+@app.route('/user/login',methods=['POST'])
+def login():
+    _email = request.form['input_email']
+    _password = request.form['input_password']
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    query = "SELECT COUNT(*) FROM users WHERE email=" + "'" + _email + "'"
+    cursor.execute(query)
+    data = cursor.fetchall()
+    if data == 1:
+        return json.dumps({'message':'Email already registered!!'})
+        conn.commit()
     else:
         return json.dumps({'error':str(data[0])})
 
