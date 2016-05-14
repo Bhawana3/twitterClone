@@ -71,17 +71,17 @@ def signUp():
 
 @app.route('/user/login',methods=['POST'])
 def login():
-    _email = request.form['input_email']
-    _password = request.form['input_password']
+    _email = request.form['username']
+    _password = request.form['password']
 
     conn = mysql.connect()
     cursor = conn.cursor()
     query = "SELECT COUNT(*) FROM users WHERE email=" + "'" + _email + "'"
     cursor.execute(query)
     data = cursor.fetchall()
-    if data == 1:
-        return json.dumps({'message':'Email already registered!!'})
+    if len(data) == 1:
         conn.commit()
+        return json.dumps({'message':'User Logged in successfully!!'})
     else:
         return json.dumps({'error':str(data[0])})
 
@@ -112,8 +112,8 @@ def user_profile():
     query = "SELECT tweet,created_at FROM user_tweets WHERE username ='bhawana' ORDER BY created_at DESC"
     cursor.execute(query)
     tweet = cursor.fetchall()
-    return json.dumps({'tweets:': tweet})
     conn.commit()
+    return json.dumps({'tweets:': tweet})
 
 
 #program runs from here
