@@ -25,14 +25,20 @@ DELIMITER ;
 
 """
 
-from flask import Flask,request,json,render_template
+from flask import Flask,request,json,render_template,session,redirect,url_for,escape
 from flask.ext.mysql import MySQL
 
 app = Flask(__name__)
 
 @app.route('/')
-def writeTweet():
+def write_tweet():
     return render_template('write_tweet.html')
+
+@app.route('/#')
+def index():
+    if session.get('logged_in') == True:
+        return 'You are logged in'
+    return 'You are not logged in'
 
 @app.route('/signup/')
 def sign_up():
@@ -61,7 +67,7 @@ def signUp():
     cursor = conn.cursor()
     cursor.callproc('register',(_username,_email,_password))              #calls procedure createUser
     data = cursor.fetchall()
-
+    print data
     if len(data) is 0:
         conn.commit()
         return json.dumps({'message':'User created successfully !'})
@@ -71,20 +77,25 @@ def signUp():
 
 @app.route('/user/login',methods=['POST'])
 def login():
-    _email = request.form['username']
+    _email = request.form['email']
     _password = request.form['password']
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    query = "SELECT COUNT(*) FROM users WHERE email=" + "'" + _email + "'"
+    query = "SELECT * FROM users WHERE email=" + "'" + _email + "'"
     cursor.execute(query)
     data = cursor.fetchall()
+
     if len(data) == 1:
-        conn.commit()
-        return json.dumps({'message':'User Logged in successfully!!'})
+        username = data[0][1]
+        email = data[0][2]
+        print username,email
+        session['username'] = username
+        session['email'] = email
+        print 'User Logged in successfully!!'
+        return redirect(url_for('profile'))
     else:
         return json.dumps({'error':str(data[0])})
-
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
@@ -98,24 +109,34 @@ def insert_into_db():
     cursor.execute(query)
     data = cursor.fetchall()
 
-    if len(data) == 0:
+    if len(data) == 1:
         conn.commit()
         return json.dumps({'message':'Tweet added successfully!'})
     else:
         return json.dumps({'error':str(data[0])})
 
 # user profile
-@app.route('/profile',methods=["POST"])
-def user_profile():
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    query = "SELECT tweet,created_at FROM user_tweets WHERE username ='bhawana' ORDER BY created_at DESC"
-    cursor.execute(query)
-    tweet = cursor.fetchall()
-    conn.commit()
-    return json.dumps({'tweets:': tweet})
+@app.route('/profile',methods=['GET'])
+def profile():
+    if 'username' in session:
+        username = session['username']
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "SELECT tweet,created_at FROM user_tweets WHERE username ='" + username + "'" + "ORDER BY created_at DESC"
+        cursor.execute(query)
+        tweet = cursor.fetchall()
+        conn.commit()
+        return json.dumps({'tweets:': tweet})
+    else:
+        return "You are not looged in!!"
 
+@app.route('/logout')
+def logout():
+    email = session['email']
+    session.pop('email',None)
+    return redirect(url_for('index'))
 
 #program runs from here
 if __name__ == "__main__":
+    app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
     app.run()
