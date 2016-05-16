@@ -8,8 +8,8 @@
 <body>
 <div id="container" class="container">
     <div id="header">
-        <img class="background" src="/home/bhawana/mydev/TwitterClone/static/background.jpg" alt="background-image" style="height:250px;width:100%">
-        <img class="user" src="/home/bhawana/mydev/TwitterClone/static/user.png" alt="user-image" style="width:160px;border-radius: 49%">
+        <img class="background" src="{{ url_for('static',filename='background.jpg') }}" alt="background-image" style="height:250px;width:100%">
+        <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%">
     </div>
     <div id="input-box">
         <input class="message-box" placeholder="What's on your mind?"/>
