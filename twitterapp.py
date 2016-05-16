@@ -151,7 +151,7 @@ def profile():
         tweet = cursor.fetchall()
         conn.commit()
         print json.dumps({'tweets:': tweet})
-        return render_template('profile.html')
+        return render_template('profile.html',username=username)
     else:
         return "You are not logged in!!"
 
