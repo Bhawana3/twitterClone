@@ -31,7 +31,7 @@ from flask.ext.mysql import MySQL
 app = Flask(__name__)
 
 @app.route('/')
-def write_tweet():
+def home():
     return render_template('write_tweet.html')
 
 @app.route('/#')
@@ -42,7 +42,7 @@ def index():
 
 @app.route('/signup/')
 def sign_up():
-    return render_template('signup.html')
+    return render_template('register.html')
 
 @app.route('/login/')
 def log_in():
@@ -59,13 +59,13 @@ mysql.init_app(app)
 
 @app.route('/user/signup',methods=['POST'])
 def signUp():
-    _username = request.form['input_user']
-    _email = request.form['input_email']
-    _password = request.form['input_password']
+    _username = request.form['username']
+    _email = request.form['email']
+    _password = request.form['password']
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    cursor.callproc('register',(_username,_email,_password))              #calls procedure createUser
+    cursor.callproc('register',(_username,_email,_password))              #calls procedure register
     data = cursor.fetchall()
     print data
     if len(data) is 0:
@@ -130,7 +130,7 @@ def profile():
     else:
         return "You are not looged in!!"
 
-@app.route('/logout')
+@app.route('/logout',methods=['GET'])
 def logout():
     email = session['email']
     session.pop('email',None)
