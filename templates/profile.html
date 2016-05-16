@@ -1,7 +1,28 @@
-{% extends "layout.html" %}
-{% block content %}
-  <div class="jumbo">
-    <h2>Profile<h2>
-    <h3>This is {{ session['email'] }}'s profile page<h3>
-  </div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile</title>
+  <link href="/home/bhawana/mydev/TwitterClone/static/profile.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div id="container" class="container">
+    <div id="header">
+        <img class="background" src="/home/bhawana/mydev/TwitterClone/static/background.jpg" alt="background-image" style="height:250px;width:100%">
+        <img class="user" src="/home/bhawana/mydev/TwitterClone/static/user.png" alt="user-image" style="width:160px;border-radius: 49%">
+    </div>
+    <div id="input-box">
+        <input class="message-box" placeholder="What's on your mind?"/>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
+        </div>
+    </div>
+    <div class="control-group" id="tweet-post">
+        <div class="controls">
+
+        </div>
+    </div>
+</div>
+</body>
