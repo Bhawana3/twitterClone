@@ -3,29 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Log In</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='login.css') }}">
 </head>
 
 <body>
-<form action="" method=post class="form-horizontal">
-    <h2>Signin to Twitter-Clone Application </h2>
+<div id="container">
+<form action="/user/login" method="POST" class="form-horizontal" style="text-align:center">
+    <div>
+        <img src="{{ url_for('static',filename='user.png')}}" alt="user-icon" style="width:60px;position: relative;border-radius: 49%;padding:10px;">
+    </div>
+    <div id="row">
+        <div id="row-heading"> Welcome Back </div>
+        <div id="row-detail">Twitter-Clone</div>
+    </div>
     <div class="control-group">
         <div class="controls">
-            <input type="text" id="username" name="username" class="input-xlarge"
-                   placeholder="Enter Username" required>
+            <input type="text" id="email" name="email" class="input-xlarge" placeholder="Enter Email" required>
         </div>
     </div>
 
     <div class="control-group">
         <div class="controls">
-            <input type="password" id="password" name="password" class="input-xlarge"
-                   placeholder="Enter Password" required>
+            <input type="password" id="password" name="password" class="input-xlarge" placeholder="Enter Password" required>
         </div>
     </div>
 
     <div class="control-group">
         <div class="controls">
-            <button type="submit" class="btn btn-success">Signin</button>
+            <button type="submit" class="btn btn-success">Login</button>
         </div>
     </div>
 </form>
+</div>
 </body>
