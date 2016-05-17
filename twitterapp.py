@@ -1,19 +1,4 @@
 """
-DELIMITER $$
-CREATE
-DEFINER=`root`@`localhost`
-PROCEDURE `register`(IN _username VARCHAR(100),IN _email VARCHAR(100),IN _password VARCHAR(50))
-BEGIN
-    if ( select exists (select 1 from users where username = _username) ) THEN
-        select 'Username Already Exists !!';
-    ELSE
-        insert into users (username,email,password) values (_username,_email,_password);
-    END IF;
-END$$
-DELIMITER ;
-"""
-
-"""
 | users | CREATE TABLE `users` (
   `uid` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
@@ -25,7 +10,7 @@ DELIMITER ;
 
 """
 
-from flask import Flask,request,json,render_template,session,redirect,url_for,escape
+from flask import Flask,request,json,render_template,session,redirect,url_for,escape,flash
 from flask.ext.mysql import MySQL
 
 app = Flask(__name__)
@@ -39,9 +24,14 @@ app.config['MYSQL_DATABASE_DB'] = 'twitter_clone'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
+def convert_date(date_string):          #input date in 09-07-2013 returns date in July 09,2013
+    import datetime
+    date = datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    return date.strftime('%b %d,%Y')
+
 @app.route('/')
 def home():
-    return render_template('write_tweet.html')
+    return render_template('layout.html')
 
 @app.route('/#')
 def index():
@@ -64,7 +54,7 @@ def log_in():
         print "Error: ",e
 
 @app.route('/user/signup',methods=['POST'])
-def signUp():
+def signup():
     _username = request.form['username']
     _email = request.form['email']
     _password = request.form['password']
@@ -72,18 +62,23 @@ def signUp():
     try:
         conn = mysql.connect()
         cursor = conn.cursor()
-        cursor.callproc('register',(_username,_email,_password))              #calls procedure register
+        query = "SELECT email FROM users where email='" + _email + "'"
+        cursor.execute(query)
         data = cursor.fetchall()
-        print data
+        print len(data)
+        if len(data) == 0:
+            insert_query = "INSERT INTO users(username,email,password) VALUES('" + _username + "','" + _email + "','" + _password  + "')"
+            print insert_query
+            cursor.execute(insert_query)
+            conn.commit()
+            return redirect(url_for('log_in'))
+        else:
+            flash("email already exists!!")
+            return redirect(url_for('sign_up'))
+
     except Exception as e:
+        pass
         print "error :",e
-
-    if len(data) is 0:
-        conn.commit()
-        return json.dumps({'message':'User created successfully !'})
-    else:
-        return json.dumps({'error':str(data[0])})
-
 
 @app.route('/user/login',methods=['POST'])
 def login():
@@ -101,6 +96,7 @@ def login():
         print "Error entering in table:",e
 
     if len(data) == 1:
+        uid = data[0][0]
         username = data[0][1]
         email = data[0][2]
         password = data[0][3]
@@ -109,60 +105,67 @@ def login():
             if (email == _email) and (password == _password):
                 session['username'] = username
                 session['email'] = email
-                print 'User Logged in successfully!!'
+                session['uid'] = uid
+                flash('Logged in successfully')
                 return redirect(url_for('profile'))
             else:
-                return "Please enter a valid email and password"
+                flash('Invalid email/password combination')
+                return redirect(url_for('log_in'))
         except Exception as e:
             print "Error:",e
     else:
-        return json.dumps({'error':str(data[0])})
-
-#inserting tweets into user table
-@app.route('/tweet',methods=["POST"])
-def insert_into_db():
-    _username = request.form['input_user']
-    _tweet = request.form['input_tweet']
-
-    try:
-        conn = mysql.connect()                                                                  # connecting to mysql
-        cursor = conn.cursor()
-        query = "INSERT INTO user_tweets(username,tweet) VALUES(" + "'" + _username + "','" + _tweet + "')"              #_username = string containing username of the current user
-        cursor.execute(query)
-        data = cursor.fetchall()
-    except Exception as e:
-        print "Error entering in table"
-
-    if len(data) == 1:
-        conn.commit()
-        return json.dumps({'message':'Tweet added successfully!'})
-    else:
-        return json.dumps({'error':str(data[0])})
+        flash('Please enter a valid email address')
+        return redirect(url_for('log_in'))
 
 # user profile
 @app.route('/profile',methods=['GET'])
 def profile():
-    if 'username' in session:
+    if 'uid' in session:
+        uid = session['uid']
         username = session['username']
         conn = mysql.connect()
         cursor = conn.cursor()
-        query = "SELECT tweet,created_at FROM user_tweets WHERE username ='" + username + "'" + "ORDER BY created_at DESC"
+        query = "SELECT tweet,created_at FROM tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
         cursor.execute(query)
-        tweet = cursor.fetchall()
+        tweets = cursor.fetchall()
         conn.commit()
-        print json.dumps({'tweets:': tweet})
-        return render_template('profile.html',username=username)
+
+        return render_template('profile.html',username=username,tweets=tweets)
     else:
-        return "You are not logged in!!"
+        return redirect(url_for('home'))
+
+#inserting tweets into user table
+@app.route('/tweet',methods=["POST"])
+def add_tweet():
+    _tweet = request.form['input_tweet']
+    if 'uid' in session:
+        uid = session['uid']
+        email = session['email']
+        print uid,email
+        if len(_tweet) == 0:
+            return redirect(url_for('profile'))
+        else:
+            conn = mysql.connect()                                                                  # connecting to mysql
+            cursor = conn.cursor()
+            query = "INSERT INTO tweets(uid,user_email,tweet) VALUES('" + str(uid) + "','" + email + "','" + _tweet + "')"
+            cursor.execute(query)
+            data = cursor.fetchall()
+            print data
+
+            if len(data) == 0:
+                conn.commit()
+                return redirect(url_for('profile'))
+            else:
+                return json.dumps({'error':str(data[0])})
 
 @app.route('/logout',methods=['GET'])
 def logout():
     try:
         email = session['email']
         session.pop('email',None)
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     except Exception as e:
-        return "You are not logged in!!"
+        pass
 
 #program runs from here
 if __name__ == "__main__":

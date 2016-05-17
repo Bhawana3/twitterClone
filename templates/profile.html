@@ -4,28 +4,52 @@
   <meta charset="UTF-8">
   <title>Profile</title>
   <link href="{{ url_for('static',filename='profile.css') }}" rel="stylesheet" type="text/css">
+  <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+        function disableBack() { window.history.forward() }
+        window.onload = disableBack();
+        window.onpageshow = function(evt) { if (evt.persisted) disableBack() }
+    });
+  </script>
 </head>
 <body>
 <div id="container" class="container">
+    <div class="nav-bar">
+        <div class="nav-collapse collapse">
+            <ul class="nav">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li class="active" id="home"><a href="">Profile</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
     <div id="header">
-        <img class="background" src="{{ url_for('static',filename='background.jpg') }}" alt="background-image" style="height:250px;width:100%">
+        <img class="background" src="{{ url_for('static',filename='background1.png') }}" alt="background-image" style="height:250px;width:100%">
         <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%">
     </div>
     <div id="username">
         <h2>{{ username }}</h2>
     </div>
     <div id="input-box">
-        <input class="message-box" placeholder="What's on your mind?"/>
+        <form action="/tweet" method="POST">
+            <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
+                </div>
+            </div>
+        </form>
     </div>
-    <div class="control-group">
-        <div class="controls">
-            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
+    <div id="text-container">
+        {% for tweet in tweets %}
+        <div class="control-group" id="tweet-box">
+            <div class="controls-time" id="time">{{ tweet[1] }}</div>
+            <div class="controls" id="tweet-post"> {{ tweet[0] }}</div>
         </div>
-    </div>
-    <div class="control-group" id="tweet-post">
-        <div class="controls">
-
-        </div>
+        {% endfor %}
     </div>
 </div>
 </body>

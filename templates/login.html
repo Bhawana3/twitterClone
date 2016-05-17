@@ -4,35 +4,65 @@
     <meta charset="UTF-8">
     <title>Log In</title>
     <link rel="stylesheet" href="{{ url_for('static',filename='login.css') }}">
+    <script>
+        function validateEmail(email) {
+            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (re.test(email.value) == false)
+            {
+                alert('Invalid Email Address');
+                return false;
+            }
+            return true;
+            }
+    </script>
 </head>
-
 <body>
 <div id="container">
-<form action="/user/login" method="POST" class="form-horizontal" style="text-align:center">
-    <div>
-        <img src="{{ url_for('static',filename='user.png')}}" alt="user-icon" style="width:60px;position: relative;border-radius: 49%;padding:10px;">
-    </div>
-    <div id="row">
-        <div id="row-heading"> Welcome Back </div>
-        <div id="row-detail">Twitter-Clone</div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <input type="text" id="email" name="email" class="input-xlarge" placeholder="Enter Email" required>
+    <div class="header">
+        <div class="nav-collapse collapse">
+            <ul class="nav">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li class="active"><a href="{{ url_for('log_in') }}">Login</a></li>
+                <li ><a href="{{ url_for('sign_up') }}">Sign Up</a></li>
+            </ul>
         </div>
     </div>
+    <div class="control-group" id="container-form">
+        <form action="/user/login" method="POST" class="form-horizontal" style="text-align:center">
+            <div style="padding-top: 10px;">
+                <img src="{{ url_for('static',filename='user.png')}}" alt="user-icon" style="width:80px;position: relative;border-radius: 49%;padding:10px;padding-top:10px;">
+            </div>
+            <div id="row">
+                <div id="row-heading"> Welcome Back </div>
+                <div id="row-detail">Twitter-Clone</div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="text" id="email" name="email" class="input-xlarge" placeholder="Enter Email" onblur="validateEmail(this)" required>
+                </div>
+            </div>
 
-    <div class="control-group">
-        <div class="controls">
-            <input type="password" id="password" name="password" class="input-xlarge" placeholder="Enter Password" required>
-        </div>
-    </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="password" id="password" name="password" class="input-xlarge" placeholder="Enter Password" required>
+                </div>
+            </div>
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <div class="control-group" style="padding-bottom:20px;">
+                <div class="controls">
+                    <button type="submit" class="btn btn-success">Login</button>
+                </div>
+            </div>
 
-    <div class="control-group">
-        <div class="controls">
-            <button type="submit" class="btn btn-success">Login</button>
-        </div>
+        </form>
     </div>
-</form>
 </div>
 </body>

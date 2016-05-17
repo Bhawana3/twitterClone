@@ -11,18 +11,20 @@
         <div class="header">
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li class="active"><a href="/">Home</a></li>
-                    <li><a href="{{ url_for('login') }}">Login</a></li>
-                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                    <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                    <li><a href="{{ url_for('sign_up') }}">Sign Up</a></li>
+                    <li><a href="{{ url_for('log_in') }}">Login</a></li>
                 </ul>
             </div>
         </div>
     </div>
+    <div id="image">
+        <img src="{{ url_for('static',filename='bird.png') }}" alt="image" style="width: 120px;height: 120px;position: absolute;padding-left: 600px;padding-top: 20px;">
+    </div>
     <div class="container-box">
         <h1>Twitter-Clone App</h1>
-        <p class="lead"></p>
-        <button class="btn btn-lg btn-success" type="submit">Sign up today</button>
+        <div class="signup-button">
+            <a class="btn btn-lg btn-success" id="sign-up"role="button" href="signup">Sign up today</a>
+        </div>
     </div>
 </div>
 </body>

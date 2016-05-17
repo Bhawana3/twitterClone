@@ -1,11 +1,50 @@
 #container {
-    background-color: #7D7B7C;
+    background-color: #C5C2C4;
     width:100%;
+    height:610px;
     }
 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+}
+
+li {
+    float: right;
+}
+
+li a {
+    display: block;
+    color: #5F5858;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    border-radius:5px;
+    font-family: sans-serif;
+    font-size: 16px;
+    width:60px;
+}
+
+a:hover {
+    background-color: #3B488C;
+    color:white;
+}
+
+#container-form{
+    margin-left: 350px;
+    background-color: #3B488C;
+    width: 650px;
+    height: 450px;
+    position: absolute;
+    margin-top: 60px;
+    border-radius:5px;
+    }
 
 #row-heading{
-     padding-top:5px;
+     padding-top:20px;
      padding-bottom:5px;
      color: white;
      font-size: 20px;
@@ -20,7 +59,7 @@
 
 button {
     height: 53px;
-    width: 250px;
+    width: 360px;
     border-radius: 5px;
     background-color: #ECABB0;
     margin-top: 20px;
@@ -32,27 +71,42 @@ button {
 
 #username {
     height: 42px;
-    width: 250px;
+    width: 350px;
     border-radius: 5px;
     border-color: transparent;
     background-color: #ECEBE9;
     margin-bottom: 20px;
     margin-top: 20px;
+    padding-left: 5px;
     }
 
 #email {
     height: 42px;
-    width: 250px;
+    width: 350px;
     border-radius: 5px;
     border-color: transparent;
     background-color: #ECEBE9;
-    margin-bottom: 20px
+    margin-bottom: 20px;
+    padding-left: 5px;
     }
 
 #password {
     height: 42px;
-    width: 250px;
+    width: 350px;
     border-radius: 5px;
     border-color: transparent;
-    background-color: #ECEBE9
+    background-color: #ECEBE9;
+    padding-left: 5px;
 }
+
+.flashes{
+    color:red;
+    font-family: monospace;
+    font-size: 14px;
+    padding-top:5px;
+    }
+
+
+#submit{
+    padding-bottom:20px;
+    }

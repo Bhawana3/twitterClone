@@ -19,34 +19,52 @@
 </head>
 <body>
 <div id="container">
-<form action="/user/signup" method="POST" class="form-horizontal" style="text-align: center;">
-    <div id="row">
-        <div id="row-heading">CREATE ACCOUNT</div>
-        <div id="row-detail">Twitter-Clone<div>
-    </div>
-    <div class="control-group">
-        <div class="controls">
-            <input type="text" id="username" name="username" class="input-xlarge" placeholder="Enter Username" required>
+    <div class="header">
+        <div class="nav-collapse collapse">
+            <ul class="nav">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('log_in') }}">Login</a></li>
+                <li class="active"><a href="{{ url_for('sign_up') }}">Sign Up</a></li>
+            </ul>
         </div>
     </div>
+    <div class="control-group" id="container-form">
+        <form action="/user/signup" method="POST" class="form-horizontal" style="text-align: center;">
+            <div id="row">
+                <div id="row-heading">CREATE ACCOUNT</div>
+                <div id="row-detail">Twitter-Clone<div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="text" id="username" name="username" class="input-xlarge" placeholder="Enter Username" required/>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="email" id="email" name="email" class="input-xlarge" placeholder="Enter Email" onblur="validateEmail(this)" required/>
+                </div>
+            </div>
 
-    <div class="control-group">
-        <div class="controls">
-            <input type="email" id="email" name="email" class="input-xlarge" placeholder="Enter Email" onblur="validateEmail(this)" required>
-        </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input type="password" id="password" name="password" class="input-xlarge" placeholder="Enter Password" required/>
+                </div>
+            </div>
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class=flashes>
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            <div class="control-group" id="submit">
+                <div class="controls">
+                    <button type="submit" class="btn btn-success">Create Account</button>
+                </div>
+            </div>
+        </form>
     </div>
-
-    <div class="control-group">
-        <div class="controls">
-            <input type="password" id="password" name="password" class="input-xlarge" placeholder="Enter Password" required>
-        </div>
-    </div>
-
-    <div class="control-group">
-        <div class="controls">
-            <button type="submit" class="btn btn-success">Create Account</button>
-        </div>
-    </div>
-</form>
 </div>
 </body>
