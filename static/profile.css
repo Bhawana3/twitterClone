@@ -20,7 +20,7 @@ li a {
     display: block;
     color: #5F5858;
     text-align: center;
-    padding: 14px 16px;
+    padding: 6px 10px;
     text-decoration: none;
     border-radius:5px;
     font-family: sans-serif;
@@ -28,12 +28,11 @@ li a {
     width:60px;
 }
 .active {
-    color:#CEAEE0;
+    color:#ECABB0;
     }
 
 a:hover {
-    background-color: #3B488C;
-    color:white;
+    color:#ECABB0;
 }
 
 #header{
@@ -89,22 +88,23 @@ input:focus {
 button:focus {
     outline:0;
     }
+
 #btn-tweet:hover{
-    background-color:#EA6B75;
+    background-color:white;
+    color:#EA6B75;
     }
 
 #btn-tweet{
     height: 30px;
     width: 150px;
     border-radius: 5px;
-    background-color: #F6B5BA;
+    background-color: #ECABB0;
     border-color: transparent;
     color: white;
     font-family: sans-serif;
     font-size: 14px;
     margin-left: 83.3%;
     margin-top: 1%;
-    font-weight: 600;
         }
 
 

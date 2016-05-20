@@ -33,89 +33,85 @@ def convert_date(date_string):          #input date in 09-07-2013 returns date i
 def home():
     return render_template('layout.html')
 
-@app.route('/#')
-def index():
-    if session.get('logged_in') == True:
-        return 'You are logged in'
-    return 'Please login again!!'
-
-@app.route('/signup/')
-def sign_up():
-    try:
-        return render_template('register.html')
-    except Exception as e:
-        print "error: ",e
-
-@app.route('/login/')
-def log_in():
-    try:
-        return render_template('login.html')
-    except Exception as e:
-        print "Error: ",e
-
-@app.route('/user/signup',methods=['POST'])
+@app.route('/signup',methods=['GET','POST'])
 def signup():
-    _username = request.form['username']
-    _email = request.form['email']
-    _password = request.form['password']
+    if request.method == 'POST':
+        _username = request.form['username']
+        _email = request.form['email']
+        _password = request.form['password']
 
-    try:
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        query = "SELECT email FROM users where email='" + _email + "'"
-        cursor.execute(query)
-        data = cursor.fetchall()
-        print len(data)
-        if len(data) == 0:
-            insert_query = "INSERT INTO users(username,email,password) VALUES('" + _username + "','" + _email + "','" + _password  + "')"
-            print insert_query
-            cursor.execute(insert_query)
-            conn.commit()
-            return redirect(url_for('log_in'))
-        else:
-            flash("email already exists!!")
-            return redirect(url_for('sign_up'))
-
-    except Exception as e:
-        pass
-        print "error :",e
-
-@app.route('/user/login',methods=['POST'])
-def login():
-    _email = request.form['email']
-    _password = request.form['password']
-
-    try:
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        query = "SELECT * FROM users WHERE email=" + "'" + _email + "'"
-        cursor.execute(query)
-        data = cursor.fetchall()
-
-    except Exception as e:
-        print "Error entering in table:",e
-
-    if len(data) == 1:
-        uid = data[0][0]
-        username = data[0][1]
-        email = data[0][2]
-        password = data[0][3]
-        print username,email
         try:
-            if (email == _email) and (password == _password):
-                session['username'] = username
-                session['email'] = email
-                session['uid'] = uid
-                flash('Logged in successfully')
-                return redirect(url_for('profile'))
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query = "SELECT email FROM users where email='" + _email + "'"
+            cursor.execute(query)
+            data = cursor.fetchall()
+            print len(data)
+            if len(data) == 0:
+                insert_query = "INSERT INTO users(username,email,password) VALUES('" + _username + "','" + _email + "','" + _password  + "')"
+                print insert_query
+                cursor.execute(insert_query)
+                conn.commit()
+                return redirect(url_for('login'))
             else:
-                flash('Invalid email/password combination')
-                return redirect(url_for('log_in'))
+                flash("email already exists!!")
+                return render_template('register.html')
+
         except Exception as e:
-            print "Error:",e
+            pass
+            print "error :",e
+
     else:
-        flash('Please enter a valid email address')
-        return redirect(url_for('log_in'))
+        return render_template('register.html')
+
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        if ('uid' in session) and ('email' in session) and ('username' in session):
+            print "User:",session['username']," is already logged in. Redirecting to profile page"
+            return redirect(url_for('profile'))
+        else:
+            return render_template('login.html')
+
+    elif request.method == 'POST':
+        if ('uid' in session) and ('email' in session) and ('username' in session):
+            print "User:",session['username']," is already logged in. Redirecting to profile page"
+            return redirect(url_for('profile'))
+        else:
+            _email = request.form['email']
+            _password = request.form['password']
+
+            try:
+                conn = mysql.connect()
+                cursor = conn.cursor()
+                query = "SELECT * FROM users WHERE email=" + "'" + _email + "'"
+                cursor.execute(query)
+                data = cursor.fetchall()
+
+            except Exception as e:
+                print "Error entering in table:",e
+
+            if len(data) == 1:
+                uid = data[0][0]
+                username = data[0][1]
+                email = data[0][2]
+                password = data[0][3]
+                print username,email
+
+                try:
+                    if (email == _email) and (password == _password):
+                        session['username'] = username
+                        session['uid'] = uid
+                        #flash('Logged in successfully')
+                        return redirect(url_for('profile'))
+                    else:
+                        flash('Invalid email/password combination')
+                        return render_template('login.html')
+                except Exception as e:
+                    print "Error:",e
+            else:
+                flash('Please enter a valid email address')
+                return render_template('login.html')
 
 # user profile
 @app.route('/profile',methods=['GET'])
@@ -125,7 +121,7 @@ def profile():
         username = session['username']
         conn = mysql.connect()
         cursor = conn.cursor()
-        query = "SELECT tweet,created_at FROM tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
+        query = "SELECT tweet,created_at FROM user_tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
         cursor.execute(query)
         tweets = cursor.fetchall()
         conn.commit()
@@ -140,14 +136,13 @@ def add_tweet():
     _tweet = request.form['input_tweet']
     if 'uid' in session:
         uid = session['uid']
-        email = session['email']
-        print uid,email
+        print uid
         if len(_tweet) == 0:
             return redirect(url_for('profile'))
         else:
             conn = mysql.connect()                                                                  # connecting to mysql
             cursor = conn.cursor()
-            query = "INSERT INTO tweets(uid,user_email,tweet) VALUES('" + str(uid) + "','" + email + "','" + _tweet + "')"
+            query = "INSERT INTO user_tweets(uid,tweet) VALUES('" + str(uid) + "','" + _tweet + "')"
             cursor.execute(query)
             data = cursor.fetchall()
             print data
@@ -160,14 +155,14 @@ def add_tweet():
 
 @app.route('/logout',methods=['GET'])
 def logout():
-    try:
-        email = session['email']
-        session.pop('email',None)
-        return redirect(url_for('home'))
-    except Exception as e:
-        pass
+    session.pop('uid',None)
+    session.pop('email',None)
+    session.pop('username',None)
+    print 'deleted session: ', session
+    return render_template('logout.html')
+
 
 #program runs from here
 if __name__ == "__main__":
     app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
-    app.run()
+    app.run(debug=True)

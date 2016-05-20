@@ -20,14 +20,13 @@
     <div class="nav-bar">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li class="active" id="home"><a href="">Profile</a></li>
                 <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                <li class="active" id="home"><a href="">Profile</a></li>
             </ul>
         </div>
     </div>
     <div id="header">
-        <img class="background" src="{{ url_for('static',filename='background1.png') }}" alt="background-image" style="height:250px;width:100%">
+        <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" style="height:250px;width:100%">
         <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%">
     </div>
     <div id="username">

@@ -21,14 +21,14 @@
     <div class="header">
         <div class="nav-collapse collapse">
             <ul class="nav">
+                <li ><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                <li class="active"><a href="{{ url_for('login') }}">Login</a></li>
                 <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li class="active"><a href="{{ url_for('log_in') }}">Login</a></li>
-                <li ><a href="{{ url_for('sign_up') }}">Sign Up</a></li>
             </ul>
         </div>
     </div>
     <div class="control-group" id="container-form">
-        <form action="/user/login" method="POST" class="form-horizontal" style="text-align:center">
+        <form action="/login" method="POST" class="form-horizontal" style="text-align:center">
             <div style="padding-top: 10px;">
                 <img src="{{ url_for('static',filename='user.png')}}" alt="user-icon" style="width:80px;position: relative;border-radius: 49%;padding:10px;padding-top:10px;">
             </div>
@@ -58,7 +58,7 @@
             {% endwith %}
             <div class="control-group" style="padding-bottom:20px;">
                 <div class="controls">
-                    <button type="submit" class="btn btn-success">Login</button>
+                    <button id="submit" type="submit" class="btn btn-success">Login</button>
                 </div>
             </div>
 

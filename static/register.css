@@ -20,7 +20,7 @@ li a {
     display: block;
     color: #5F5858;
     text-align: center;
-    padding: 14px 16px;
+    padding: 6px 10px;
     text-decoration: none;
     border-radius:5px;
     font-family: sans-serif;
@@ -29,9 +29,8 @@ li a {
 }
 
 a:hover {
-    background-color: #3B488C;
-    color:white;
-}
+    color: #ECABB0;
+    }
 
 #container-form{
     margin-left: 350px;
@@ -107,6 +106,11 @@ button {
     }
 
 
-#submit{
+#submit-box {
     padding-bottom:20px;
+    }
+
+#submit:hover {
+    background-color:white;
+    color:#ECABB0;
     }
