@@ -12,7 +12,7 @@
 
 from flask import Flask,request,json,render_template,session,redirect,url_for,escape,flash
 from flask.ext.mysql import MySQL
-
+import os
 app = Flask(__name__)
 
 mysql = MySQL()
@@ -121,14 +121,104 @@ def profile():
         username = session['username']
         conn = mysql.connect()
         cursor = conn.cursor()
-        query = "SELECT tweet,created_at FROM user_tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
-        cursor.execute(query)
+        query1 = "SELECT tweet,created_at FROM user_tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
+        query2 = "SELECT profile_pic FROM users WHERE uid ='" + str(uid) + "'"
+        cursor.execute(query1)
         tweets = cursor.fetchall()
+        cursor.execute(query2)
+        profile_pic = cursor.fetchone()[0]
+        print profile_pic
         conn.commit()
 
-        return render_template('profile.html',username=username,tweets=tweets)
+        return render_template('profile.html',username=username,tweets=tweets,photo=profile_pic)
     else:
         return redirect(url_for('home'))
+
+# For upload profile pic
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif','.JPG']
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if 'uid' in session:
+        uid = session['uid']
+        try:
+            if request.method == 'POST':
+                file = request.files['photo']
+                extension = os.path.splitext(file.filename)[1]
+                if extension in ALLOWED_EXTENSIONS:
+                    filename = str(uid) + extension                               # filename should be uid + extension
+                    file.save(os.path.join(UPLOAD_FOLDER, filename))
+                    print "Image uploaded:",filename
+                    photo = 'uploads/'+filename
+                    conn = mysql.connect()
+                    cursor = conn.cursor()
+                    query = "UPDATE users SET profile_pic = '" + photo + "' WHERE uid = " + str(uid) + ";"
+                    print query
+                    cursor.execute(query)
+                    conn.commit()
+                    return redirect(url_for('profile'))
+                else:
+                    print "error: image format should be png,jpg,jpeg,gif"
+            else:
+                return render_template('index.html')
+        except Exception as e:
+            print e
+
+@app.route('/<username>/followers')
+def followers(username):
+    if 'uid' in session:
+        uid = session['uid']
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = " + str(uid)
+        cursor.execute(query)
+        data = cursor.fetchall()
+        conn.commit()
+        print data
+        return data[0]
+
+@app.route('/<username>/following')
+def following(username):
+    if 'uid' in session:
+        uid = session['uid']
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = " + str(uid)
+        cursor.execute(query)
+        data = cursor.fetchall()
+        conn.commit()
+        print data
+
+#shows list of all the registered users on the app
+@app.route('/users')
+def find_user():
+    if 'uid' in session:
+        uid = session['uid']
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "SELECT uid,username,email,profile_pic FROM users WHERE uid <> " + str(uid)
+        cursor.execute(query)
+        data = cursor.fetchall()
+        conn.commit()
+        return render_template('users.html',users=data)
+
+@app.route('/follow',methods=['POST'])
+def follow():
+    uid = request.form['uid']
+    try:
+        if 'uid' in session:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query = "INSERT INTO followers(follower_id,followed_id) VALUES('" + str(session['uid']) + "','" + str(uid) + "')"
+            print query
+            cursor.execute(query)
+            conn.commit()
+            return redirect(url_for('find_user'))
+    except Exception as e:
+        print e
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
