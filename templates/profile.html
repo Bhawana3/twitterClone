@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Profile</title>
-  <link href="{{ url_for('static',filename='profile.css') }}" rel="stylesheet" type="text/css">
   <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
   <link href='https://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>
-    $(document).ready(function() {
-        function disableBack() { window.history.forward() }
-        window.onload = disableBack();
-        window.onpageshow = function(evt) { if (evt.persisted) disableBack() }
-    });
-  </script>
+  <link href="{{ url_for('static',filename='profile.css') }}" rel="stylesheet" type="text/css">
+  <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
 </head>
 <body>
 <div id="container" class="container">
@@ -25,10 +21,19 @@
             </ul>
         </div>
     </div>
-    <div id="header">
+    <div id="image-box">
         <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" style="height:250px;width:100%">
-        <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%">
-    </div>
+        <div class="user_profile">
+            {% if photo %}
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = photo) }}" alt="user-image" style="width:160px;height:160px;border-radius: 49%">
+            {% else %}
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%">
+            {% endif %}
+            <div id="user_image">
+                <a href="{{ url_for('upload_file') }}" id="update_image">Update Profile Picture</a>
+            </div>
+
+        </div>
     <div id="username">
         <h2>{{ username }}</h2>
     </div>
