@@ -17,6 +17,8 @@ app = Flask(__name__)
 
 mysql = MySQL()
 
+PORT = os.getenv('PORT')
+
 #MySQL Configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'cutiepie07'
@@ -116,22 +118,25 @@ def login():
 # user profile
 @app.route('/profile',methods=['GET'])
 def profile():
-    if 'uid' in session:
-        uid = session['uid']
-        username = session['username']
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        query1 = "SELECT tweet,created_at FROM user_tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
-        query2 = "SELECT profile_pic FROM users WHERE uid ='" + str(uid) + "'"
-        cursor.execute(query1)
-        tweets = cursor.fetchall()
-        cursor.execute(query2)
-        profile_pic = cursor.fetchone()[0]
-        print profile_pic
-        conn.commit()
-
-        return render_template('profile.html',username=username,tweets=tweets,photo=profile_pic)
-    else:
+    try:
+        if 'uid' in session:
+            uid = session['uid']
+            username = session['username']
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query1 = "SELECT tweet,created_at FROM user_tweets WHERE uid ='" + str(uid) + "'" + "ORDER BY created_at DESC"
+            query2 = "SELECT profile_pic FROM users WHERE uid ='" + str(uid) + "'"
+            cursor.execute(query1)
+            tweets = cursor.fetchall()
+            cursor.execute(query2)
+            profile_pic = cursor.fetchone()[0]
+            print profile_pic
+            conn.commit()
+            return render_template('profile.html',username=username,tweets=tweets,photo=profile_pic)
+        else:
+            return redirect(url_for('home'))
+    except Exception as e:
+        print "error : ",e
         return redirect(url_for('home'))
 
 # For upload profile pic
@@ -167,6 +172,7 @@ def upload_file():
         except Exception as e:
             print e
 
+#returns list of followers
 @app.route('/<username>/followers')
 def followers(username):
     if 'uid' in session:
@@ -180,6 +186,7 @@ def followers(username):
         print data
         return data[0]
 
+#returns ;ist of followings
 @app.route('/<username>/following')
 def following(username):
     if 'uid' in session:
@@ -196,18 +203,24 @@ def following(username):
 @app.route('/users')
 def find_user():
     following = []
-    if 'uid' in session:
-        uid = session['uid']
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        query ="SELECT * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> " + str(uid)
-        cursor.execute(query)
-        results = cursor.fetchall()
-        conn.commit()
-        for result in results:
-            if result[5] == uid:
-                following.append(int(result[6]))
-        return render_template('users.html',users=results,followings=following)
+    try:
+        if 'uid' in session:
+            uid = session['uid']
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query ="SELECT * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> " + str(uid)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            conn.commit()
+            for result in results:
+                if result[5] == uid:
+                    following.append(int(result[6]))
+            return render_template('users.html',users=results,followings=following)
+        else:
+            return redirect(url_for('home'))
+    except Exception as e:
+        print "error :",e
+        return redirect(url_for('home'))
 
 @app.route('/follow',methods=['POST'])
 def follow():
@@ -285,5 +298,6 @@ def logout():
 
 #program runs from here
 if __name__ == "__main__":
+    print "Starting on port:",PORT
     app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
-    app.run(debug=True)
+    app.run(port=PORT)
