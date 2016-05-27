@@ -9,11 +9,39 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script>
     $(document).ready(function(){
-        $('input').click(function(){
-            $(this).css('background-color','#4AC3A8');
-            $(this).val('Unfollow');
-           });
-        });
+        $('.follow_button').click(function(){
+            var element = $(this);
+            if (element.val() === 'Follow'){
+                var user_id = $(this).attr('user_id');
+                $.ajax({
+                    url:'follow',
+                    data:{'uid':user_id},
+                    type:'post',
+                    success:function(response){
+                        if(response["message"] === "success"){
+                            $(element).css('background-color','#4AC3A8');
+                            $(element).val('Unfollow');
+                        }
+                    }
+                    });
+            }
+            else{
+                var element = $(this);
+                var user_id = $(this).attr('user_id');
+                $.ajax({
+                    url:'unfollow',
+                    data:{'uid':user_id},
+                    type:'post',
+                    success:function(response){
+                        if(response["message"] === "success"){
+                            $(element).css('background-color','#EA6B75');
+                            $(element).val('Follow');
+                        }
+                    }
+                    });
+            }
+            });
+    });
     </script>
 </head>
 <body>
@@ -31,8 +59,8 @@
         <div class="control-group" id="box">
             <div class="user_info" style="display:inline-flex;width:100%">
                 <div class="photo" id="profile_pic" style="width: 30%;">
-                    {% if user[3] %}
-                    <img class="user" id="img" src="{{ url_for('static',filename = user[3]) }}" alt="user-image" style="width:80px;height:80px;border-radius: 49%;padding:10px;">
+                    {% if user[4] %}
+                    <img class="user" id="img" src="{{ url_for('static',filename = user[4]) }}" alt="user-image" style="width:80px;height:80px;border-radius: 49%;padding:10px;">
                     {% else %}
                     <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:80px;border-radius: 49%;padding:10px;">
                     {% endif %}
@@ -40,9 +68,12 @@
                 <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
                     <div class="username" id="name">{{ user[1] }}</div>
                     <div class="email" id="email-detail" style="color: #615E5E;"> {{ user[2] }}</div>
-                    <form action="/follow" method="POST">
-                        <input id="user_id" type="hidden" value={{ user[0] }} name="uid">
-                        <input type="submit" value="Follow">
+                    <form>
+                        {% if user[0] in followings %}
+                        <input class="follow_button" type="button" value="Unfollow" user_id="{{ user[0] }}" style="background-color: #4AC3A8;">
+                        {% else %}
+                        <input class="follow_button" type="button" value="Follow" user_id="{{ user[0] }}">
+                        {% endif %}
                     </form>
                 </div>
             </div>
