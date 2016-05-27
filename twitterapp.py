@@ -9,7 +9,7 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 |
 
 """
-
+import flask
 from flask import Flask,request,json,render_template,session,redirect,url_for,escape,flash
 from flask.ext.mysql import MySQL
 import os
@@ -195,15 +195,19 @@ def following(username):
 #shows list of all the registered users on the app
 @app.route('/users')
 def find_user():
+    following = []
     if 'uid' in session:
         uid = session['uid']
         conn = mysql.connect()
         cursor = conn.cursor()
-        query = "SELECT uid,username,email,profile_pic FROM users WHERE uid <> " + str(uid)
+        query ="SELECT * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> " + str(uid)
         cursor.execute(query)
-        data = cursor.fetchall()
+        results = cursor.fetchall()
         conn.commit()
-        return render_template('users.html',users=data)
+        for result in results:
+            if result[5] == uid:
+                following.append(int(result[6]))
+        return render_template('users.html',users=results,followings=following)
 
 @app.route('/follow',methods=['POST'])
 def follow():
@@ -213,12 +217,39 @@ def follow():
             conn = mysql.connect()
             cursor = conn.cursor()
             query = "INSERT INTO followers(follower_id,followed_id) VALUES('" + str(session['uid']) + "','" + str(uid) + "')"
-            print query
             cursor.execute(query)
             conn.commit()
-            return redirect(url_for('find_user'))
+            respStr = json.dumps({'message':'success'})
+            resp = flask.Response(respStr)
+            resp.headers['Content-Type'] = 'application/json'
+            return resp
     except Exception as e:
         print e
+        respStr = json.dumps({'message':'failure'})
+        resp = flask.Response(respStr)
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
+
+@app.route('/unfollow',methods=['POST'])
+def unfollow():
+    uid = request.form['uid']
+    try:
+        if 'uid' in session:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query = "DELETE FROM followers WHERE followed_id=" + str(uid)
+            cursor.execute(query)
+            conn.commit()
+            respStr = json.dumps({'message':'success'})
+            resp = flask.Response(respStr)
+            resp.headers['Content-Type'] = 'application/json'
+            return resp
+    except Exception as e:
+        print e
+        respStr = json.dumps({'message':'failure'})
+        resp = flask.Response(respStr)
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
