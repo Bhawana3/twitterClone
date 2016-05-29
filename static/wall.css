@@ -1,0 +1,152 @@
+::-webkit-input-placeholder {
+   color: #ECABB9;
+}
+
+#container{
+    border-color: #ABA7A7;
+    background-color:white;
+    padding-bottom:50px;
+    background-color: #ECF3F3;
+    }
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+}
+
+li {
+    float: right;
+}
+
+li a {
+    display: block;
+    color: #5F5858;
+    text-align: center;
+    padding: 6px 10px;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 16px;
+    width:60px;
+    border-bottom:solid;
+    border-color:white;
+}
+
+.active {
+    color:#ECABB0;
+     }
+
+a:hover {
+    color:#ECABB0;
+    border-color:#ECABB0;
+}
+
+.profile_info{
+    width: 22%;
+    height: 200px;
+    border: solid 1px;
+    background-color: white;
+    margin-left: 8%;
+    margin-top: 1.5%;
+    border-color: #D2D3D4;
+    border-radius: 5px;
+    border-top: solid 1px;
+        }
+.background {
+    position: relative;
+    top: 0;
+    left: 0;
+    }
+
+#username{
+    position:absolute;
+    top: 210px;
+    left: 10%;
+    font-size:20px;
+    color:white;
+    margin-left: 170px;
+    font-size: 23px;
+    font-family: 'Droid Sans', sans-serif;
+
+    }
+
+.name {
+     position: absolute;
+     top: 150px;
+     left: 16%;
+     font-family: sans-serif;
+     font-size: 16px;
+     font-weight: bold;
+     text-decoration: none;
+     color: black;
+     cursor:all-scroll;
+}
+
+.feed{
+    width: 50%;
+    margin-left: 4%;
+    border-left: solid 1px;
+    border-right: solid 1px;
+    border-color: #E0DEE4;
+    background-color: white;
+    margin-top: 20px;
+    border-radius: 5px;
+    }
+
+#input-box{
+    padding-bottom:8px;
+    /*border-bottom: solid 15px;*/
+    border-color: #ECF3F3;
+    padding-top: 25px;
+    }
+
+.message-box{
+    margin-top:2%;
+    width:80%;
+    height: 60px;
+    border: solid 1px;
+    border-color: #D2D3D4;
+    border-radius: 5px;
+    color: #807C7C;
+    font-size: 15px;
+    padding-left: 10px;
+    margin-left: 9%;
+      }
+
+button:focus {
+    outline:0;
+    }
+
+#btn-tweet:hover{
+    background-color:white;
+    color:#EA6B75;
+    }
+
+#btn-tweet{
+    height: 30px;
+    width: 80px;
+    border-radius: 5px;
+    background-color: #ECABB0;
+    border-color: transparent;
+    color: white;
+    font-family: sans-serif;
+    font-size: 14px;
+    margin-left: 79%;
+    margin-top: 1%;
+        }
+
+#box{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: solid 1px;
+    border-color: #E0DEE4;
+        }
+
+.username{
+    font-weight: bolder;
+    font-size: 14px;
+    font-family: 'Oxygen', sans-serif;
+    color: #423A3A;
+    }

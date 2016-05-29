@@ -17,6 +17,7 @@
         <div class="nav-collapse collapse">
             <ul class="nav">
                 <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}">Search</a></li>
                 <li class="active" id="home"><a href="">Profile</a></li>
             </ul>
         </div>
@@ -25,15 +26,16 @@
         <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" style="height:250px;width:100%">
         <div class="user_profile">
             {% if photo %}
-            <img class="user" id="imgUpload" src="{{ url_for('static',filename = photo) }}" alt="user-image" style="width:160px;height:160px;border-radius: 49%">
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = photo) }}" alt="user-image" style="width:160px;height:160px;border-radius: 49%;border: solid 5px;border-color: white;">
             {% else %}
-            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%">
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:160px;border-radius: 49%;border: solid 5px;border-color: white;">
             {% endif %}
             <div id="user_image">
                 <a href="{{ url_for('upload_file') }}" id="update_image">Update Profile Picture</a>
             </div>
 
         </div>
+    </div>
     <div id="username">
         <h2>{{ username }}</h2>
     </div>
@@ -50,10 +52,11 @@
     <div id="text-container">
         {% for tweet in tweets %}
         <div class="control-group" id="tweet-box">
-            <div class="controls-time" id="time">{{ tweet[1] }}</div>
-            <div class="controls" id="tweet-post"> {{ tweet[0] }}</div>
+            <div class="controls-time" id="time">{{ tweet[0] }}</div>
+            <div class="controls" id="tweet-post"> {{ tweet[1] }}</div>
         </div>
         {% endfor %}
     </div>
 </div>
 </body>
+</html>

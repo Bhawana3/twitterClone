@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Followers</title>
+    <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
+    <link href="{{ url_for('static',filename='wall.css') }}" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+</head>
+<body>
+<div id="container" class="container">
+    <div class="nav-bar">
+        <div class="nav-collapse collapse">
+            <ul class="nav">
+                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
+                <li><a href="{{ url_for('profile')}}" style="cursor:all-scroll;">Profile</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="feed-container" style="display:flex">
+        <div class="profile_info">
+            <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" style="height:80px;width:100%">
+            {% if user_detail %}
+            <div class="info">
+                <div class="user_photo" id="user_picture" style="width: 12%;">
+                    {% if user_detail[4] %}
+                    <img class="userimage" id="image" src="{{ url_for('static',filename = user_detail[4]) }}" alt="user-image" style="width:80px;height:80px;border-radius: 49%;margin-left: 10px;border: solid 3px;border-color: white;position: absolute;top: 100px;">
+                    {% else %}
+                    <img class="userimage" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:80px;border-radius: 49%;margin-left: 10px;border: solid 3px;border-color: white;position: absolute;top: 100px;">
+                    {% endif %}
+                </div>
+                <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
+                    <div class="profile_header" style="display: inline-flex;">
+                        <a href="{{ url_for('profile')}}" class="name" id="profile_name">{{ user_detail[1] }}</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="followers" style="margin-left: 60px;padding-top: 35px;font-family: 'Oxygen', sans-serif;">
+                <a href="{{ url_for('followers') }}" style="text-decoration:none;color: #35D4D4;">Followers</a>
+                <a href="{{ url_for('following') }}" style="text-decoration:none;padding-left: 20px;color: #35D4D4;">Followings</a>
+            </div>
+        </div>
+        <div class="feed">
+            <div id="input-box">
+                <form action="/tweet" method="POST">
+                    <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
+                    <div class="control-group">
+                        <div class="controls">
+                            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet" style="cursor:all-scroll;"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="container-detail" id="user-detail">
+                {% for user in users %}
+                <div class="control-group" id="box">
+                    <div class="user_info" style="display:inline-flex;width:100%">
+                        <div class="photo" id="profile_pic" style="width: 12%;">
+                            {% if user[2] %}
+                            <img class="user" id="img" src="{{ url_for('static',filename = user[2]) }}" alt="user-image" style="width:50px;height:50px;border-radius: 49%;margin-left: 10px;">
+                            {% else %}
+                            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:50px;border-radius: 49%;margin-left: 10px;">
+                            {% endif %}
+                        </div>
+                        <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
+                            <div class="user_header" style="display: inline-flex;">
+                                <div class="username" id="name">{{ user[1] }}</div>
+                                <div class="user[3]" id="time" style="padding-left: 20px;font-size: 13px;font-family: sans-serif;color: #B1AEAE;"> {{ user[4] }}</div>
+                            </div>
+                            <div class="user[2]" id="tweet" style="font-family: 'Oxygen', sans-serif;font-size: 18px;color: #615E5E;"> {{ user[3] }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile</title>
+  <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
+  <link href="{{ url_for('static',filename='profile.css') }}" rel="stylesheet" type="text/css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div id="container" class="container">
+    <div class="nav-bar">
+        <div class="nav-collapse collapse">
+            <ul class="nav">
+                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
+                <li><a href="{{ url_for('wall')}}" style="cursor:all-scroll;">Home</a></li>
+                <li class="active" id="home"><a href="" style="cursor:all-scroll;">Profile</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="image-box">
+        <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" style="height:250px;width:100%">
+        <div id="user_image">
+            <a href="{{ url_for('upload_file') }}" id="update_image">Update Profile Picture</a>
+        </div>
+        <div id="input-box">
+            <form action="/tweet" method="POST">
+                <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% for tweet in tweets %}
+        <div class="user_profile">
+            {% if tweet[4] %}
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = tweet[4]) }}" alt="user-image" style="width:200px;height:200px;border-radius: 49%;border: solid 5px;border-color: white;">
+            {% else %}
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:200px;border-radius: 49%;border: solid 5px;border-color: white;">
+            {% endif %}
+        </div>
+        <div id="username">
+            <h2>{{ tweet[1] }}</h2>
+        </div>
+        {% if tweet[8] != None %}
+        <div id="text-container">
+            <div class="control-group" id="tweet-box">
+                <div class="controls-time" id="time">{{ tweet[8] }}</div>
+                <div class="controls" id="tweet-post"> {{ tweet[7] }}</div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+</div>
+</body>
+</html>
+
