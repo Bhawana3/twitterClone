@@ -69,11 +69,15 @@ def signup():
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        if ('uid' in session) and ('email' in session) and ('username' in session):
-            print "User:",session['username']," is already logged in. Redirecting to profile page"
-            return redirect(url_for('profile'))
-        else:
-            return render_template('login.html')
+        try:
+            print "Session variable is:",session
+            if ('uid' in session) and ('email' in session) and ('username' in session):
+                print "User:",session['username']," is already logged in. Redirecting to profile page"
+                return redirect(url_for('profile'))
+            else:
+                return render_template('login.html')
+        except Exception as e:
+            print "Error occurred:",e
 
     elif request.method == 'POST':
         if ('uid' in session) and ('email' in session) and ('username' in session):
@@ -86,7 +90,7 @@ def login():
             try:
                 conn = mysql.connect()
                 cursor = conn.cursor()
-                query = "SELECT * FROM users WHERE email=" + "'" + _email + "'"
+                query = "SELECT * FROM users WHERE email=" + "'" + _email + "' and password='" + _password + "'"
                 cursor.execute(query)
                 data = cursor.fetchall()
 
@@ -102,9 +106,21 @@ def login():
 
                 try:
                     if (email == _email) and (password == _password):
+                        # User credentials are correct
+
+                        # Delete old values from session
+                        print "Logging out any user if he's already logged-in."
+                        session.clear()
+
+                        # Log the user in.
+                        print "Logging in the user:", username
                         session['username'] = username
                         session['uid'] = uid
+                        session['email'] = email
                         #flash('Logged in successfully')
+
+
+                        print "User:",username,"successfully logged-in. Redirecting to profile page."
                         return redirect(url_for('profile'))
                     else:
                         flash('Invalid email/password combination')
@@ -131,6 +147,8 @@ def wall():
             conn.commit()
             print user_detail
             return render_template('wall.html',users=data,user_detail=user_detail)
+        else:
+            return redirect(url_for('login'))
     except Exception as e:
         print "error: ",e
 
@@ -140,15 +158,15 @@ def profile():
     try:
         if 'uid' in session:
             uid = session['uid']
+            username = session['username']
+            print username
             conn = mysql.connect()
             cursor = conn.cursor()
             query = "SELECT * FROM users LEFT OUTER JOIN user_tweets ON users.uid = user_tweets.uid WHERE users.uid = " + str(uid) + " ORDER BY user_tweets.created_at DESC"
-            print query
             cursor.execute(query)
             data = cursor.fetchall()
             conn.commit()
-            print data
-            return render_template('following.html',tweets=data)
+            return render_template('profile.html',username=username,tweets=data)
         else:
             return redirect(url_for('home'))
     except Exception as e:
@@ -227,15 +245,16 @@ def find_user():
             uid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> " + str(uid)
+            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> " + str(uid) + " GROUP BY users.uid"
+            # group by finds unique row in table
             print query
             cursor.execute(query)
             results = cursor.fetchall()
-            print results
             conn.commit()
             for result in results:
                 if result[5] == uid:
-                    following.append(int(result[6]))
+                    following.append(result[6])
+            print following
             return render_template('users.html',users=results,followings=following)
         else:
             return redirect(url_for('home'))
@@ -313,6 +332,8 @@ def logout():
     session.pop('uid',None)
     session.pop('email',None)
     session.pop('username',None)
+    # Delete any other keys in session, if any
+    session.clear()
     print 'deleted session: ', session
     return render_template('logout.html')
 

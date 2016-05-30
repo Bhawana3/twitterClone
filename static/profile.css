@@ -1,3 +1,7 @@
+::-webkit-input-placeholder {
+   color: #E2E1E1;
+}
+
 #container{
     border-color: #ABA7A7;
     background-color:#E2E1E1;
@@ -49,7 +53,7 @@ a:hover {
     left: 0;
     }
 
-#profile_name{
+#username{
     position:absolute;
     top: 210px;
     left: 10%;
@@ -59,6 +63,22 @@ a:hover {
     font-size: 23px;
     font-family: 'Droid Sans', sans-serif;
 
+    }
+
+.followers{
+    font-family: 'Oxygen', sans-serif;
+    padding-bottom: 10px;
+    padding-left: 9px;
+    width: 18.5%;
+    border-color: #BDC7C4;
+    margin-top: 80px;
+    color: #ECABB0;
+    font-size: 14px;
+    padding-right: 5px;
+    }
+
+.followers:hover{
+    text-decoration:underline;
     }
 
 .user {
@@ -87,9 +107,9 @@ a:hover {
 
 .message-box{
     margin-top:2%;
-    margin-left: 21%;
+    margin-left: 2%;
     height: 80px;
-    width: 72%;
+    width: 959px;
     border: none;
     border-width: 1px;
     border-top: solid 1px;
@@ -124,7 +144,7 @@ button:focus {
     color: white;
     font-family: sans-serif;
     font-size: 14px;
-    margin-left: 83.3%;
+    margin-left: 86.7%;
     margin-top: 1%;
         }
 
@@ -153,7 +173,7 @@ button:focus {
     font-size: 15px;
     padding-left: 10px;
     font-family: serif;
-    color: #615E5E;
+    color: #ABAAAA;
     width:100%;
     height:20px;
     padding-top:10px;
