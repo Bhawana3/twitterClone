@@ -50,9 +50,9 @@ def signup():
             data = cursor.fetchall()
             print len(data)
             if len(data) == 0:
-                insert_query = "INSERT INTO users(username,email,password) VALUES('" + _username + "','" + _email + "','" + _password  + "')"
+                insert_query = "INSERT INTO users(username,email,password) VALUES(%s,%s,%s)"
                 print insert_query
-                cursor.execute(insert_query)
+                cursor.execute(insert_query,(_username,_email,_password))
                 conn.commit()
                 return redirect(url_for('login'))
             else:
@@ -90,8 +90,8 @@ def login():
             try:
                 conn = mysql.connect()
                 cursor = conn.cursor()
-                query = "SELECT * FROM users WHERE email=" + "'" + _email + "' and password='" + _password + "'"
-                cursor.execute(query)
+                query = "SELECT * FROM users WHERE email=%s and password=%s"
+                cursor.execute(query,(_email,_password))
                 data = cursor.fetchall()
 
             except Exception as e:
@@ -138,11 +138,11 @@ def wall():
             uid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query1 = "SELECT * FROM (SELECT user_tweets.uid,users.username,users.profile_pic,user_tweets.tweet,user_tweets.created_at FROM user_tweets INNER JOIN followers ON user_tweets.uid=followers.followed_id INNER JOIN users ON users.uid = user_tweets.uid WHERE followers.follower_id=" + str(uid) + ") AS home_table ORDER BY created_at DESC;"
-            cursor.execute(query1)
+            query1 = "SELECT * FROM (SELECT user_tweets.uid,users.username,users.profile_pic,user_tweets.tweet,user_tweets.created_at FROM user_tweets INNER JOIN followers ON user_tweets.uid=followers.followed_id INNER JOIN users ON users.uid = user_tweets.uid WHERE followers.follower_id=%s) AS home_table ORDER BY created_at DESC;"
+            cursor.execute(query1,str(uid))
             data = cursor.fetchall()
-            query2 = "SELECT * from users WHERE uid=" + str(uid)
-            cursor.execute(query2)
+            query2 = "SELECT * from users WHERE uid=%s"
+            cursor.execute(query2,str(uid))
             user_detail = cursor.fetchone()
             conn.commit()
             print user_detail
@@ -162,8 +162,8 @@ def profile():
             print username
             conn = mysql.connect()
             cursor = conn.cursor()
-            query = "SELECT * FROM users LEFT OUTER JOIN user_tweets ON users.uid = user_tweets.uid WHERE users.uid = " + str(uid) + " ORDER BY user_tweets.created_at DESC"
-            cursor.execute(query)
+            query = "SELECT * FROM users LEFT OUTER JOIN user_tweets ON users.uid = user_tweets.uid WHERE users.uid = %s ORDER BY user_tweets.created_at DESC"
+            cursor.execute(query,str(uid))
             data = cursor.fetchall()
             conn.commit()
             return render_template('profile.html',username=username,tweets=data)
@@ -194,9 +194,9 @@ def upload_file():
                     photo = 'uploads/'+filename
                     conn = mysql.connect()
                     cursor = conn.cursor()
-                    query = "UPDATE users SET profile_pic = '" + photo + "' WHERE uid = " + str(uid) + ";"
+                    query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
                     print query
-                    cursor.execute(query)
+                    cursor.execute(query,(photo,str(uid)))
                     conn.commit()
                     return redirect(url_for('profile'))
                 else:
@@ -214,8 +214,8 @@ def followers():
         uid = session['uid']
         conn = mysql.connect()
         cursor = conn.cursor()
-        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = " + str(uid)
-        cursor.execute(query)
+        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s"
+        cursor.execute(query,str(uid))
         results = cursor.fetchall()
         conn.commit()
         for result in results:
@@ -230,8 +230,8 @@ def following():
         uid = session['uid']
         conn = mysql.connect()
         cursor = conn.cursor()
-        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = " + str(uid)
-        cursor.execute(query)
+        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = %s"
+        cursor.execute(query,str(uid))
         data = cursor.fetchall()
         conn.commit()
         return render_template("followers.html",users=data)
@@ -245,10 +245,10 @@ def find_user():
             uid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> " + str(uid) + " GROUP BY users.uid"
+            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid"
             # group by finds unique row in table
             print query
-            cursor.execute(query)
+            cursor.execute(query,str(uid))
             results = cursor.fetchall()
             conn.commit()
             for result in results:
@@ -269,8 +269,8 @@ def follow():
         if 'uid' in session:
             conn = mysql.connect()
             cursor = conn.cursor()
-            query = "INSERT INTO followers(follower_id,followed_id) VALUES('" + str(session['uid']) + "','" + str(uid) + "')"
-            cursor.execute(query)
+            query = "INSERT INTO followers(follower_id,followed_id) VALUES(%s,%s)"
+            cursor.execute(query,(str(session['uid']),str(uid)))
             conn.commit()
             respStr = json.dumps({'message':'success'})
             resp = flask.Response(respStr)
@@ -290,8 +290,8 @@ def unfollow():
         if 'uid' in session:
             conn = mysql.connect()
             cursor = conn.cursor()
-            query = "DELETE FROM followers WHERE followed_id=" + str(uid)
-            cursor.execute(query)
+            query = "DELETE FROM followers WHERE followed_id = %s"
+            cursor.execute(query,str(uid))
             conn.commit()
             respStr = json.dumps({'message':'success'})
             resp = flask.Response(respStr)
@@ -316,8 +316,8 @@ def add_tweet():
         else:
             conn = mysql.connect()                                                                  # connecting to mysql
             cursor = conn.cursor()
-            query = "INSERT INTO user_tweets(uid,tweet) VALUES('" + str(uid) + "','" + _tweet + "')"
-            cursor.execute(query)
+            query = "INSERT INTO user_tweets(uid,tweet) VALUES(%s,%s)"
+            cursor.execute(query,(str(uid),_tweet))
             data = cursor.fetchall()
             print data
 
