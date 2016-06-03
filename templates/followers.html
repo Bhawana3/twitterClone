@@ -75,6 +75,8 @@
                     <form>
                         {% if user[0] in followings %}
                         <input class="follow_button" type="button" value="Unfollow" user_id="{{ user[0] }}" style="background-color: #4AC3A8;">
+                        {% elif user_id == user[0] %}
+                        <p></p>
                         {% else %}
                         <input class="follow_button" type="button" value="Follow" user_id="{{ user[0] }}">
                         {% endif %}

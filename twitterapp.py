@@ -162,17 +162,19 @@ def followers(uid):
             userid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s" % str(uid)
-            cursor.execute(query)
+            query1 = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s" % str(uid)
+            cursor.execute(query1)
             results = cursor.fetchall()
+            query2 = "SELECT followed_id FROM followers Where follower_id = %s" % str(userid)
+            cursor.execute(query2)
+            data = cursor.fetchall()
             conn.commit()
+
             for result in results:
-                follower_id = str(result[5])
-                user_id = str(uid)
-                print follower_id,user_id
-                if follower_id == user_id:
-                    if user_id != userid:
-                        following.append(int(result[6]))
+                for entry in data:
+                    if entry[0] == result[0]:
+                        following.append(entry[0])
+
             return render_template('followers.html',uid=uid,users=results,followings=following,user_id=userid)
 
         else:
@@ -189,19 +191,18 @@ def following(uid):
             userid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = %s" % str(uid)
-            cursor.execute(query)
+            query1 = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = %s" % str(uid)
+            query2 = "SELECT followed_id FROM followers Where follower_id = %s" % str(userid)
+            cursor.execute(query1)
             results = cursor.fetchall()
+            cursor.execute(query2)
+            data = cursor.fetchall()
             conn.commit()
+
             for result in results:
-                follower_id = str(result[6])
-                user_id = str(uid)
-                #followed_id = result[6]
-                print user_id,userid,follower_id
-                if follower_id == user_id:
-                    if user_id != userid:
-                        following.append(int(result[6]))
-            print following
+                for entry in data:
+                    if entry[0] == result[0]:
+                        following.append(entry[0])
             return render_template('followers.html',uid=uid,users=results,followings=following,user_id=userid)
 
         else:
@@ -302,7 +303,7 @@ def upload_file():
                     query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
                     cursor.execute(query,(photo,str(uid)))
                     conn.commit()
-                    #return redirect(url_for('profile',uid=uid))
+
                     respStr = json.dumps({'message':'success'})
                     resp = flask.Response(respStr)
                     resp.headers['Content-Type'] = 'application/json'
@@ -327,17 +328,21 @@ def find_user():
             uid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid" % str(uid)
+            query1 ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid" % str(uid)
             # group by finds unique row in table
-            cursor.execute(query)
+            cursor.execute(query1)
             results = cursor.fetchall()
-            print results
+            query2 = "SELECT followed_id FROM followers Where follower_id = %s" % str(uid)
+            cursor.execute(query2)
+            data = cursor.fetchall()
             conn.commit()
+
             for result in results:
-                if str(result[5]) == str(uid):
-                    following.append(result[6])
-            print following
+                for entry in data:
+                    if entry[0] == result[0]:
+                        following.append(entry[0])
             return render_template('users.html',uid=uid,users=results,followings=following)
+
         else:
             return redirect(url_for('home'))
     except Exception as e:
