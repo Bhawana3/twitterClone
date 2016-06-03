@@ -1,6 +1,6 @@
 .container-box{
     text-align: center;
-    background-color: #DEDBDC;
+    background-color: white;
     height:200px;
     padding-top: 150px;
     border-radius: 5px;
@@ -31,6 +31,8 @@ ul {
     padding: 0;
     overflow: hidden;
     background-color: white;
+    border-bottom: solid 1px;
+    border-color: #CCC6C6;
 }
 
 li {

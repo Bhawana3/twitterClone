@@ -1,5 +1,5 @@
 #container {
-    background-color: #C5C2C4;
+    background-color: white;
     height:210px;
     width:100%;
     }
@@ -10,6 +10,8 @@ ul {
     padding: 0;
     overflow: hidden;
     background-color: white;
+    border-bottom: solid 1px;
+    border-color: #CCC6C6;
 }
 
 li {
@@ -51,3 +53,13 @@ a:hover {
      font-family: sans-serif;
      padding-left: 23px;
     }
+
+#content{
+    text-decoration: none;
+    color: white;
+    }
+
+/*#content:hover{
+    text-decoration: underline;
+    }
+    */

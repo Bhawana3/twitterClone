@@ -10,15 +10,17 @@
     <div class="header">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li ><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                <!--<li ><a href="{{ url_for('signup') }}">Sign Up</a></li>-->
                 <li class="active"><a href="{{ url_for('login') }}">Login</a></li>
-                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <!--<li><a href="{{ url_for('home') }}">Home</a></li>-->
             </ul>
         </div>
     </div>
     <div class="control-group" id="container-data">
         <div id="row">
-            <div id="row-heading"> Logged Out Successfully, please login again. </div>
+            <div id="row-heading">
+                <a id="content" href="{{ url_for('login') }}">Logged Out Successfully, please login again.</a>
+            </div>
         </div>
     </div>
 </div>

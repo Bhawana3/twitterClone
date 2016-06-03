@@ -15,7 +15,9 @@
         <div class="nav-collapse collapse">
             <ul class="nav">
                 <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
-                <li><a href="{{ url_for('profile')}}" style="cursor:all-scroll;">Profile</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
+                <li><a href="{{ url_for('profile',uid=uid)}}" style="cursor:all-scroll;">Profile</a></li>
+                <li class="active" id="home"><a href="" style="cursor:all-scroll;">Home</a></li>
             </ul>
         </div>
     </div>
@@ -33,14 +35,14 @@
                 </div>
                 <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
                     <div class="profile_header" style="display: inline-flex;">
-                        <a href="{{ url_for('profile')}}" class="name" id="profile_name">{{ user_detail[1] }}</a>
+                        <a href="{{ url_for('profile',uid=uid)}}" class="name" id="profile_name">{{ user_detail[1] }}</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            <div class="followers" style="margin-left: 60px;padding-top: 35px;font-family: 'Oxygen', sans-serif;">
-                <a href="{{ url_for('followers') }}" style="text-decoration:none;color: #35D4D4;">Followers</a>
-                <a href="{{ url_for('following') }}" style="text-decoration:none;padding-left: 20px;color: #35D4D4;">Following</a>
+            <div style="margin-left: 60px;padding-top: 35px;font-family: 'Oxygen', sans-serif;">
+                <a class="followers" href="{{ url_for('followers',uid=uid) }}" >Followers</a>
+                <a class="following" href="{{ url_for('following',uid=uid) }}" >Following</a>
             </div>
         </div>
         <div class="feed">
@@ -67,7 +69,9 @@
                         </div>
                         <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
                             <div class="user_header" style="display: inline-flex;">
-                                <div class="username" id="name">{{ user[1] }}</div>
+                                <div class="username" id="name">
+                                    <a href="{{ url_for('profile', uid= user[0]) }}" style="text-decoration: none;color: #ECABB0;">{{ user[1] }}</a>
+                                </div>
                                 <div class="user[3]" id="time" style="padding-left: 20px;font-size: 13px;font-family: sans-serif;color: #B1AEAE;"> {{ user[4] }}</div>
                             </div>
                             <div class="user[2]" id="tweet" style="font-family: 'Oxygen', sans-serif;font-size: 18px;color: #615E5E;"> {{ user[3] }}</div>

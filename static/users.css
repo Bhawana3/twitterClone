@@ -1,6 +1,6 @@
 #container{
     border-color: #ABA7A7;
-    background-color:#E2E1E1;
+    background-color:#ECF3F3;
     padding-bottom:50px;
     }
 
@@ -10,6 +10,8 @@ ul {
     padding: 0;
     overflow: hidden;
     background-color: white;
+    border-bottom: solid 1px;
+    border-color: #CCC6C6;
 }
 
 li {
@@ -50,12 +52,16 @@ a:hover {
 
 #name {
     font-size: 20px;
-    color: #332C2C;
+    color: #4AC3A8;
     font-family: 'Josefin Sans', sans-serif;
     word-wrap: break-word;
     width: 100%;
     padding-top: 30px;
     font-weight: 600;
+    }
+
+#name:hover{
+    text-decoration:underline;
     }
 
 .follow_button{
@@ -66,4 +72,9 @@ a:hover {
     padding: 5px;
     margin-left: 70%;
     margin-top: 10px;
+    cursor: pointer;
 }
+
+.follow_button:hover{
+    text-decoration:underline;
+    }

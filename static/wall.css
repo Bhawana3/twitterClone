@@ -1,5 +1,5 @@
 ::-webkit-input-placeholder {
-   color: #ECABB9;
+   color: #E0DEE4;
 }
 
 #container{
@@ -15,6 +15,8 @@ ul {
     padding: 0;
     overflow: hidden;
     background-color: white;
+    border-bottom: solid 1px;
+    border-color: #CCC6C6;
 }
 
 li {
@@ -148,5 +150,21 @@ button:focus {
     font-weight: bolder;
     font-size: 14px;
     font-family: 'Oxygen', sans-serif;
-    color: #423A3A;
+    color: #4AC3A8;
     }
+
+.username:hover{
+    text-decoration:underline;
+    }
+
+.followers{
+    text-decoration:none;
+    color: #4AC3A8;
+    }
+
+.following{
+    text-decoration:none;
+    padding-left: 20px;
+    color: #4AC3A8;
+    }
+

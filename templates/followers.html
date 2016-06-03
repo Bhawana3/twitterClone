@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Followers</title>
+    <title>All Users</title>
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
     <link href="{{ url_for('static',filename='users.css') }}" rel="stylesheet" type="text/css">
@@ -10,20 +10,37 @@
     <script>
     $(document).ready(function(){
         $('.follow_button').click(function(){
-             var element = $(this);
-             var user_id = $(this).attr('user_id');
-             $.ajax({
-                 url:'unfollow',
-                 data:{'uid':user_id},
-                 type:'post',
-                 success:function(response){
-                     if(response["message"] === "success"){
-                         $(element).css('background-color','#EA6B75');
-                         $(element).val('Follow');
-                     }
-                 }
-             });
-        });
+            var element = $(this);
+            if (element.val() === 'Follow'){
+                var user_id = $(this).attr('user_id');
+                $.ajax({
+                    url:'/follow',
+                    data:{'uid':user_id},
+                    type:'post',
+                    success:function(response){
+                        if(response["message"] === "success"){
+                            $(element).css('background-color','#4AC3A8');
+                            $(element).val('Unfollow');
+                        }
+                    }
+                    });
+            }
+            else{
+                var element = $(this);
+                var user_id = $(this).attr('user_id');
+                $.ajax({
+                    url:'/unfollow',
+                    data:{'uid':user_id},
+                    type:'post',
+                    success:function(response){
+                        if(response["message"] === "success"){
+                            $(element).css('background-color','#EA6B75');
+                            $(element).val('Follow');
+                        }
+                    }
+                    });
+            }
+            });
     });
     </script>
 </head>
@@ -32,8 +49,10 @@
     <div class="nav-bar">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                <li><a href="{{ url_for('profile')}}">Profile</a></li>
+                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
+                <li><a href="{{ url_for('profile',uid=user_id) }}" style="cursor:all-scroll;">Profile</a></li>
+                <li><a href="{{ url_for('wall') }}" style="cursor:all-scroll;">Home</a></li>
             </ul>
         </div>
     </div>
@@ -49,10 +68,16 @@
                     {% endif %}
                 </div>
                 <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
-                    <div class="username" id="name">{{ user[1] }}</div>
+                    <div class="username" id="name">
+                        <a href="{{ url_for('profile',uid= user[0])}}" style="text-decoration: none;color: #EA6B75;">{{ user[1] }}</a>
+                    </div>
                     <div class="email" id="email-detail" style="color: #615E5E;"> {{ user[2] }}</div>
                     <form>
+                        {% if user[0] in followings %}
                         <input class="follow_button" type="button" value="Unfollow" user_id="{{ user[0] }}" style="background-color: #4AC3A8;">
+                        {% else %}
+                        <input class="follow_button" type="button" value="Follow" user_id="{{ user[0] }}">
+                        {% endif %}
                     </form>
                 </div>
             </div>
@@ -61,4 +86,3 @@
     </div>
 </div>
 </body>
-

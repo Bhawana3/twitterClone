@@ -1,14 +1,3 @@
-"""
-| users | CREATE TABLE `users` (
-  `uid` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(100) NOT NULL,
-  `email` varchar(120) NOT NULL,
-  `password` varchar(100) NOT NULL,
-  PRIMARY KEY (`uid`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 |
-
-"""
 import flask
 from flask import Flask,request,json,render_template,session,redirect,url_for,escape,flash
 from flask.ext.mysql import MySQL
@@ -20,11 +9,14 @@ mysql = MySQL()
 #PORT = os.getenv('PORT')
 
 #MySQL Configurations
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'cutiepie07'
-app.config['MYSQL_DATABASE_DB'] = 'twitter_clone'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
+try:
+    app.config['MYSQL_DATABASE_USER'] = 'root'
+    app.config['MYSQL_DATABASE_PASSWORD'] = 'cutiepie07'
+    app.config['MYSQL_DATABASE_DB'] = 'twitter_clone'
+    app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+    mysql.init_app(app)
+except Exception as e:
+    print "Error : ",e
 
 def convert_date(date_string):          #input date in 09-07-2013 returns date in July 09,2013
     import datetime
@@ -33,7 +25,11 @@ def convert_date(date_string):          #input date in 09-07-2013 returns date i
 
 @app.route('/')
 def home():
-    return render_template('layout.html')
+    if 'uid' in session:
+        uid = session['uid']
+        return redirect(url_for('wall'))
+    else:
+        return render_template('layout.html')
 
 @app.route('/signup',methods=['GET','POST'])
 def signup():
@@ -73,7 +69,8 @@ def login():
             print "Session variable is:",session
             if ('uid' in session) and ('email' in session) and ('username' in session):
                 print "User:",session['username']," is already logged in. Redirecting to profile page"
-                return redirect(url_for('profile'))
+                uid = session['uid']
+                return redirect(url_for('profile',uid=uid))
             else:
                 return render_template('login.html')
         except Exception as e:
@@ -82,7 +79,8 @@ def login():
     elif request.method == 'POST':
         if ('uid' in session) and ('email' in session) and ('username' in session):
             print "User:",session['username']," is already logged in. Redirecting to profile page"
-            return redirect(url_for('profile'))
+            uid = session['uid']
+            return redirect(url_for('profile',uid=uid))
         else:
             _email = request.form['email']
             _password = request.form['password']
@@ -91,7 +89,7 @@ def login():
                 conn = mysql.connect()
                 cursor = conn.cursor()
                 query = "SELECT * FROM users WHERE email=%s and password=%s"
-                cursor.execute(query,(_email,_password))
+                cursor.execute(query, (_email,_password))
                 data = cursor.fetchall()
 
             except Exception as e:
@@ -117,11 +115,9 @@ def login():
                         session['username'] = username
                         session['uid'] = uid
                         session['email'] = email
-                        #flash('Logged in successfully')
-
 
                         print "User:",username,"successfully logged-in. Redirecting to profile page."
-                        return redirect(url_for('profile'))
+                        return redirect(url_for('profile',uid=uid))
                     else:
                         flash('Invalid email/password combination')
                         return render_template('login.html')
@@ -131,6 +127,135 @@ def login():
                 flash('Please enter a valid email address')
                 return render_template('login.html')
 
+#function for opening users profile
+@app.route('/profile/<uid>')
+def profile(uid):
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "SELECT * FROM users LEFT OUTER JOIN user_tweets ON users.uid = user_tweets.uid WHERE users.uid =" + str(uid) + " ORDER BY user_tweets.created_at DESC"
+        cursor.execute(query)
+        data = cursor.fetchall()
+        conn.commit()
+        user_id = session['uid']
+        if str(uid) == str(user_id):
+            user_name = session['username']
+            return render_template('profile.html',username=user_name,tweets=data,uid=user_id)
+        else:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            userid = str(data[0][0])
+            username = str(data[0][1])
+            sql_query = "SELECT * FROM followers WHERE follower_id = %s and followed_id = %s " % (user_id,userid)
+            cursor.execute(sql_query)
+            result = cursor.fetchone()
+            conn.commit()
+            return render_template('another_profile.html',uid=userid,username=username,tweets=data,user_id=user_id,result=result)
+    except Exception as e:
+        print "Error : ",e
+
+@app.route('/profile/<uid>/followers')
+def followers(uid):
+    following = []
+    try:
+        if 'uid' in session:
+            userid = session['uid']
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s" % str(uid)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            conn.commit()
+            for result in results:
+                follower_id = str(result[5])
+                user_id = str(uid)
+                print follower_id,user_id
+                if follower_id == user_id:
+                    if user_id != userid:
+                        following.append(int(result[6]))
+            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=userid)
+
+        else:
+            return redirect(url_for('login'))
+    except Exception as e:
+        print "Error : ",e
+        return redirect(url_for('profile',uid=uid))
+
+@app.route('/profile/<uid>/following')
+def following(uid):
+    following = []
+    try:
+        if 'uid' in session:
+            userid = session['uid']
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = %s" % str(uid)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            conn.commit()
+            for result in results:
+                follower_id = str(result[6])
+                user_id = str(uid)
+                #followed_id = result[6]
+                print user_id,userid,follower_id
+                if follower_id == user_id:
+                    if user_id != userid:
+                        following.append(int(result[6]))
+            print following
+            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=userid)
+
+        else:
+            redirect(url_for('login'))
+    except Exception as e:
+        print "Error : ",e
+        return redirect(url_for('profile',uid=uid))
+
+@app.route('/follow',methods=['POST'])
+def follow():
+    uid = request.form['uid']
+    print uid
+    print session['uid']
+    try:
+        if 'uid' in session:
+            if str(uid) != str(session['uid']):
+                conn = mysql.connect()
+                cursor = conn.cursor()
+                query = "INSERT INTO followers(follower_id,followed_id) VALUES(%s,%s)"
+                cursor.execute(query,(str(session['uid']),str(uid)))
+                conn.commit()
+                respStr = json.dumps({'message':'success'})
+                resp = flask.Response(respStr)
+                resp.headers['Content-Type'] = 'application/json'
+                return resp
+
+    except Exception as e:
+        print e
+        respStr = json.dumps({'message':'failure'})
+        resp = flask.Response(respStr)
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
+
+@app.route('/unfollow',methods=['POST'])
+def unfollow():
+    uid = request.form['uid']
+    try:
+        if 'uid' in session:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            query = "DELETE FROM followers WHERE followed_id = %s" % str(uid)
+            cursor.execute(query)
+            conn.commit()
+            respStr = json.dumps({'message':'success'})
+            resp = flask.Response(respStr)
+            resp.headers['Content-Type'] = 'application/json'
+            return resp
+    except Exception as e:
+        print e
+        respStr = json.dumps({'message':'failure'})
+        resp = flask.Response(respStr)
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
+
 @app.route('/home')
 def wall():
     try:
@@ -138,40 +263,20 @@ def wall():
             uid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query1 = "SELECT * FROM (SELECT user_tweets.uid,users.username,users.profile_pic,user_tweets.tweet,user_tweets.created_at FROM user_tweets INNER JOIN followers ON user_tweets.uid=followers.followed_id INNER JOIN users ON users.uid = user_tweets.uid WHERE followers.follower_id=%s) AS home_table ORDER BY created_at DESC;"
-            cursor.execute(query1,str(uid))
+            query1 = "SELECT * FROM (SELECT user_tweets.uid,users.username,users.profile_pic,user_tweets.tweet,user_tweets.created_at FROM user_tweets INNER JOIN followers ON user_tweets.uid=followers.followed_id INNER JOIN users ON users.uid = user_tweets.uid WHERE followers.follower_id=%s) AS home_table ORDER BY created_at DESC;" % str(uid)
+            cursor.execute(query1)
             data = cursor.fetchall()
-            query2 = "SELECT * from users WHERE uid=%s"
-            cursor.execute(query2,str(uid))
+            query2 = "SELECT * from users WHERE uid=%s" % str(uid)
+            cursor.execute(query2)
             user_detail = cursor.fetchone()
             conn.commit()
             print user_detail
-            return render_template('wall.html',users=data,user_detail=user_detail)
+            return render_template('wall.html',users=data,user_detail=user_detail,uid=uid)
         else:
             return redirect(url_for('login'))
     except Exception as e:
         print "error: ",e
 
-# user profile
-@app.route('/profile',methods=['GET'])
-def profile():
-    try:
-        if 'uid' in session:
-            uid = session['uid']
-            username = session['username']
-            print username
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            query = "SELECT * FROM users LEFT OUTER JOIN user_tweets ON users.uid = user_tweets.uid WHERE users.uid = %s ORDER BY user_tweets.created_at DESC"
-            cursor.execute(query,str(uid))
-            data = cursor.fetchall()
-            conn.commit()
-            return render_template('profile.html',username=username,tweets=data)
-        else:
-            return redirect(url_for('home'))
-    except Exception as e:
-        print "error : ",e
-        return redirect(url_for('home'))
 
 # For upload profile pic
 UPLOAD_FOLDER = 'static/uploads'
@@ -195,46 +300,23 @@ def upload_file():
                     conn = mysql.connect()
                     cursor = conn.cursor()
                     query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
-                    print query
                     cursor.execute(query,(photo,str(uid)))
                     conn.commit()
-                    return redirect(url_for('profile'))
+                    #return redirect(url_for('profile',uid=uid))
+                    respStr = json.dumps({'message':'success'})
+                    resp = flask.Response(respStr)
+                    resp.headers['Content-Type'] = 'application/json'
+                    return resp
                 else:
+                    respStr = json.dumps({'message':'failure'})
+                    resp = flask.Response(respStr)
+                    resp.headers['Content-Type'] = 'application/json'
+                    return resp
                     print "error: image format should be png,jpg,jpeg,gif"
             else:
-                return render_template('index.html')
+                return redirect(url_for('profile',uid=uid))
         except Exception as e:
             print e
-
-#returns list of followers
-@app.route('/followers')
-def followers():
-    following = []
-    if 'uid' in session:
-        uid = session['uid']
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s"
-        cursor.execute(query,str(uid))
-        results = cursor.fetchall()
-        conn.commit()
-        for result in results:
-            if result[5] == uid:
-                following.append(int(result[6]))
-        return render_template('users.html',users=results,followings=following)
-
-#returns list of followings
-@app.route('/following')
-def following():
-    if 'uid' in session:
-        uid = session['uid']
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = %s"
-        cursor.execute(query,str(uid))
-        data = cursor.fetchall()
-        conn.commit()
-        return render_template("followers.html",users=data)
 
 #shows list of all the registered users on the app
 @app.route('/users')
@@ -245,64 +327,22 @@ def find_user():
             uid = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid"
+            query ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid" % str(uid)
             # group by finds unique row in table
-            print query
-            cursor.execute(query,str(uid))
+            cursor.execute(query)
             results = cursor.fetchall()
+            print results
             conn.commit()
             for result in results:
-                if result[5] == uid:
+                if str(result[5]) == str(uid):
                     following.append(result[6])
             print following
-            return render_template('users.html',users=results,followings=following)
+            return render_template('users.html',uid=uid,users=results,followings=following)
         else:
             return redirect(url_for('home'))
     except Exception as e:
         print "error :",e
         return redirect(url_for('home'))
-
-@app.route('/follow',methods=['POST'])
-def follow():
-    uid = request.form['uid']
-    try:
-        if 'uid' in session:
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            query = "INSERT INTO followers(follower_id,followed_id) VALUES(%s,%s)"
-            cursor.execute(query,(str(session['uid']),str(uid)))
-            conn.commit()
-            respStr = json.dumps({'message':'success'})
-            resp = flask.Response(respStr)
-            resp.headers['Content-Type'] = 'application/json'
-            return resp
-    except Exception as e:
-        print e
-        respStr = json.dumps({'message':'failure'})
-        resp = flask.Response(respStr)
-        resp.headers['Content-Type'] = 'application/json'
-        return resp
-
-@app.route('/unfollow',methods=['POST'])
-def unfollow():
-    uid = request.form['uid']
-    try:
-        if 'uid' in session:
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            query = "DELETE FROM followers WHERE followed_id = %s"
-            cursor.execute(query,str(uid))
-            conn.commit()
-            respStr = json.dumps({'message':'success'})
-            resp = flask.Response(respStr)
-            resp.headers['Content-Type'] = 'application/json'
-            return resp
-    except Exception as e:
-        print e
-        respStr = json.dumps({'message':'failure'})
-        resp = flask.Response(respStr)
-        resp.headers['Content-Type'] = 'application/json'
-        return resp
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
@@ -312,20 +352,25 @@ def add_tweet():
         uid = session['uid']
         print uid
         if len(_tweet) == 0:
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile',uid=uid))
         else:
-            conn = mysql.connect()                                                                  # connecting to mysql
-            cursor = conn.cursor()
-            query = "INSERT INTO user_tweets(uid,tweet) VALUES(%s,%s)"
-            cursor.execute(query,(str(uid),_tweet))
-            data = cursor.fetchall()
-            print data
+            try:
+                conn = mysql.connect()                                                                  # connecting to mysql
+                cursor = conn.cursor()
+                query = "INSERT INTO user_tweets(uid,tweet) VALUES(%s,%s)"
+                cursor.execute(query,(str(uid),_tweet))
+                data = cursor.fetchall()
+                print data
 
-            if len(data) == 0:
-                conn.commit()
-                return redirect(url_for('profile'))
-            else:
-                return json.dumps({'error':str(data[0])})
+                if len(data) == 0:
+                    conn.commit()
+                    return redirect(url_for('profile',uid=uid))
+                else:
+                    return json.dumps({'error':str(data[0])})
+            except Exception as e:
+                print "Error : ",e
+                return redirect(url_for('profile',uid=uid))
+
 
 @app.route('/logout',methods=['GET'])
 def logout():
