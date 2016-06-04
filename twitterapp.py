@@ -130,6 +130,8 @@ def login():
 #function for opening users profile
 @app.route('/profile/<uid>')
 def profile(uid):
+    followers = []
+    followings =[]
     try:
         conn = mysql.connect()
         cursor = conn.cursor()
@@ -137,37 +139,78 @@ def profile(uid):
         cursor.execute(query)
         data = cursor.fetchall()
         conn.commit()
-        user_id = session['uid']
-        if str(uid) == str(user_id):
+        logged_in_user_id = session['uid']
+        if str(uid) == str(logged_in_user_id):
             user_name = session['username']
-            return render_template('profile.html',username=user_name,tweets=data,uid=user_id)
+            sql_query = "SELECT * FROM followers WHERE follower_id = %s or followed_id = %s " % (logged_in_user_id,logged_in_user_id)
+            print sql_query
+            cursor.execute(sql_query)
+            results = cursor.fetchall()
+            conn.commit()
+            print results
+
+            for result in results:
+                if str(result[0]) == str(logged_in_user_id):
+                    followings.append(result[1])
+                else:
+                    followers.append(result[0])
+
+            return render_template('profile.html',username=user_name,tweets=data,uid=logged_in_user_id,followers_count=len(followers),followings_count=len(followings))
         else:
             conn = mysql.connect()
             cursor = conn.cursor()
             userid = str(data[0][0])
             username = str(data[0][1])
-            sql_query = "SELECT * FROM followers WHERE follower_id = %s and followed_id = %s " % (user_id,userid)
+            sql_query = "SELECT * FROM followers WHERE follower_id = %s or followed_id = %s " % (userid,userid)
+            print sql_query
             cursor.execute(sql_query)
-            result = cursor.fetchone()
+            results = cursor.fetchall()
+            print results
             conn.commit()
-            return render_template('another_profile.html',uid=userid,username=username,tweets=data,user_id=user_id,result=result)
+            print len(results)
+
+            for result in results:
+                print result
+                if str(result[0]) == str(userid):
+                    followings.append(result[1])
+                else:
+                    followers.append(result[0])
+
+            # find if this user is followed by logged_in_user
+            if logged_in_user_id in followers:
+                is_followed_by_logged_in_user = True
+            else:
+                is_followed_by_logged_in_user = False
+
+            return render_template('another_profile.html',uid=userid,username=username,tweets=data,user_id=logged_in_user_id,is_followed=is_followed_by_logged_in_user,followers_count=len(followers),followings_count=len(followings))
     except Exception as e:
         print "Error : ",e
+
+
+def get_users_followed_by(uid):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    query = "SELECT followed_id FROM followers Where follower_id = %s" % str(uid)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    print "Query is :",query
+    print "data from SQL is ",data
+    return data
 
 @app.route('/profile/<uid>/followers')
 def followers(uid):
     following = []
     try:
         if 'uid' in session:
-            userid = session['uid']
+            logged_in_user_id = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
             query1 = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s" % str(uid)
+            print query1
             cursor.execute(query1)
             results = cursor.fetchall()
-            query2 = "SELECT followed_id FROM followers Where follower_id = %s" % str(userid)
-            cursor.execute(query2)
-            data = cursor.fetchall()
+            print "results = ", results
+            data = get_users_followed_by(logged_in_user_id)        # check followings of logged-in user
             conn.commit()
 
             for result in results:
@@ -175,7 +218,7 @@ def followers(uid):
                     if entry[0] == result[0]:
                         following.append(entry[0])
 
-            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=userid)
+            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=logged_in_user_id)
 
         else:
             return redirect(url_for('login'))
@@ -188,22 +231,24 @@ def following(uid):
     following = []
     try:
         if 'uid' in session:
-            userid = session['uid']
+            logged_in_user_id = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
             query1 = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.followed_id WHERE followers.follower_id = %s" % str(uid)
-            query2 = "SELECT followed_id FROM followers Where follower_id = %s" % str(userid)
             cursor.execute(query1)
             results = cursor.fetchall()
-            cursor.execute(query2)
-            data = cursor.fetchall()
+
+            # These are the users that the Logged_in user is following
+            data = get_users_followed_by(logged_in_user_id)
+
             conn.commit()
 
             for result in results:
                 for entry in data:
                     if entry[0] == result[0]:
                         following.append(entry[0])
-            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=userid)
+
+            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=logged_in_user_id)
 
         else:
             redirect(url_for('login'))
@@ -222,6 +267,7 @@ def follow():
                 conn = mysql.connect()
                 cursor = conn.cursor()
                 query = "INSERT INTO followers(follower_id,followed_id) VALUES(%s,%s)"
+                print query
                 cursor.execute(query,(str(session['uid']),str(uid)))
                 conn.commit()
                 respStr = json.dumps({'message':'success'})
@@ -244,6 +290,7 @@ def unfollow():
             conn = mysql.connect()
             cursor = conn.cursor()
             query = "DELETE FROM followers WHERE followed_id = %s" % str(uid)
+            print query
             cursor.execute(query)
             conn.commit()
             respStr = json.dumps({'message':'success'})

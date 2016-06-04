@@ -63,13 +63,19 @@
             <h2>{{ username }}</h2>
         </div>
         <div style="width:100%;display:flex">
-            <div class="followers">
-                <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}" >FOLLOWERS</a>
-                <a class="following_tab" href="{{ url_for('following',uid=uid) }}" >FOLLOWING</a>
+            <div class="followers" style="display:flex;">
+                <div class="follower">
+                    <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}">FOLLOWERS</a>
+                    <div class="followers_count" style="padding-left: 50px;color: black;font-size: 25px;">{{ followers_count }}</div>
+                </div>
+                <div class="following">
+                    <a class="following_tab" href="{{ url_for('following',uid=uid) }}">FOLLOWING</a>
+                    <div class="followers_count" style="padding-left: 80px;color: black;font-size: 25px;">{{ followings_count }}</div>
+                </div>
             </div>
             <div class="follow-unfollow">
                 <form>
-                    {% if result != None %}
+                    {% if is_followed %}
                     <input class="follow_button" type="button" value="Unfollow" user_id="{{ uid }}" style="background-color: #4AC3A8;">
                     {% else %}
                     <input class="follow_button" type="button" value="Follow" user_id="{{ uid }}">
