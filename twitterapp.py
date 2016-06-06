@@ -6,8 +6,6 @@ app = Flask(__name__)
 
 mysql = MySQL()
 
-#PORT = os.getenv('PORT')
-
 #MySQL Configurations
 try:
     app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -18,15 +16,24 @@ try:
 except Exception as e:
     print "Error : ",e
 
-def convert_date(date_string):          #input date in 09-07-2013 returns date in July 09,2013
+#input date in 09-07-2013 returns date in July 09,2013
+def convert_date(date_string):
     import datetime
     date = datetime.datetime.strptime(date_string, '%Y-%m-%d')
     return date.strftime('%b %d,%Y')
 
+def connect_to_mysql(query):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    data = cursor.fetchall()
+    conn.commit()
+    return data
+
 @app.route('/')
 def home():
     if 'uid' in session:
-        uid = session['uid']
+        logged_in_user_id = session['uid']
         return redirect(url_for('wall'))
     else:
         return render_template('layout.html')
@@ -139,11 +146,11 @@ def profile(uid):
         cursor.execute(query)
         data = cursor.fetchall()
         conn.commit()
+        profile_pic = data[0][4]
         logged_in_user_id = session['uid']
         if str(uid) == str(logged_in_user_id):
             user_name = session['username']
             sql_query = "SELECT * FROM followers WHERE follower_id = %s or followed_id = %s " % (logged_in_user_id,logged_in_user_id)
-            print sql_query
             cursor.execute(sql_query)
             results = cursor.fetchall()
             conn.commit()
@@ -155,19 +162,16 @@ def profile(uid):
                 else:
                     followers.append(result[0])
 
-            return render_template('profile.html',username=user_name,tweets=data,uid=logged_in_user_id,followers_count=len(followers),followings_count=len(followings))
+            return render_template('profile.html',username=user_name,profile_pic=profile_pic,tweets=data,uid=logged_in_user_id,followers_count=len(followers),followings_count=len(followings))
         else:
             conn = mysql.connect()
             cursor = conn.cursor()
             userid = str(data[0][0])
             username = str(data[0][1])
             sql_query = "SELECT * FROM followers WHERE follower_id = %s or followed_id = %s " % (userid,userid)
-            print sql_query
             cursor.execute(sql_query)
             results = cursor.fetchall()
-            print results
             conn.commit()
-            print len(results)
 
             for result in results:
                 print result
@@ -182,9 +186,29 @@ def profile(uid):
             else:
                 is_followed_by_logged_in_user = False
 
-            return render_template('another_profile.html',uid=userid,username=username,tweets=data,user_id=logged_in_user_id,is_followed=is_followed_by_logged_in_user,followers_count=len(followers),followings_count=len(followings))
+            return render_template('another_profile.html',uid=userid,username=username,profile_pic=profile_pic,tweets=data,user_id=logged_in_user_id,is_followed=is_followed_by_logged_in_user,followers_count=len(followers),followings_count=len(followings))
     except Exception as e:
         print "Error : ",e
+
+@app.route('/delete_tweet',methods=['POST'])
+def delete_tweet():
+    try:
+        tid = request.form['tid']
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        query = "DELETE FROM user_tweets WHERE t_id = %s" % str(tid)
+        cursor.execute(query)
+        conn.commit()
+        respStr = json.dumps({'message':'success'})
+        resp = flask.Response(respStr)
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
+    except Exception as e:
+        print e
+        respStr = json.dumps({'message':'failure'})
+        resp = flask.Response(respStr)
+        resp.headers['Content-Type'] = 'application/json'
+        return resp
 
 
 def get_users_followed_by(uid):
@@ -205,9 +229,9 @@ def followers(uid):
             logged_in_user_id = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query1 = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s" % str(uid)
-            print query1
-            cursor.execute(query1)
+            query = "SELECT * FROM users INNER JOIN followers ON users.uid = followers.follower_id WHERE followers.followed_id = %s" % str(uid)
+            print query
+            cursor.execute(query)
             results = cursor.fetchall()
             print "results = ", results
             data = get_users_followed_by(logged_in_user_id)        # check followings of logged-in user
@@ -308,18 +332,18 @@ def unfollow():
 def wall():
     try:
         if 'uid' in session:
-            uid = session['uid']
+            logged_in_user_id = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query1 = "SELECT * FROM (SELECT user_tweets.uid,users.username,users.profile_pic,user_tweets.tweet,user_tweets.created_at FROM user_tweets INNER JOIN followers ON user_tweets.uid=followers.followed_id INNER JOIN users ON users.uid = user_tweets.uid WHERE followers.follower_id=%s) AS home_table ORDER BY created_at DESC;" % str(uid)
+            query1 = "SELECT * FROM (SELECT user_tweets.uid,users.username,users.profile_pic,user_tweets.tweet,user_tweets.created_at FROM user_tweets INNER JOIN followers ON user_tweets.uid=followers.followed_id INNER JOIN users ON users.uid = user_tweets.uid WHERE followers.follower_id=%s) AS home_table ORDER BY created_at DESC;" % str(logged_in_user_id)
             cursor.execute(query1)
             data = cursor.fetchall()
-            query2 = "SELECT * from users WHERE uid=%s" % str(uid)
+            query2 = "SELECT * from users WHERE uid=%s" % str(logged_in_user_id)
             cursor.execute(query2)
             user_detail = cursor.fetchone()
             conn.commit()
             print user_detail
-            return render_template('wall.html',users=data,user_detail=user_detail,uid=uid)
+            return render_template('wall.html',users=data,user_detail=user_detail,uid=logged_in_user_id)
         else:
             return redirect(url_for('login'))
     except Exception as e:
@@ -335,20 +359,20 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/upload', methods=['GET','POST'])
 def upload_file():
     if 'uid' in session:
-        uid = session['uid']
+        logged_in_user_id = session['uid']
         try:
             if request.method == 'POST':
                 file = request.files['photo']
                 extension = os.path.splitext(file.filename)[1]
                 if extension in ALLOWED_EXTENSIONS:
-                    filename = str(uid) + extension                               # filename should be uid + extension
+                    filename = str(logged_in_user_id) + extension                               # filename should be uid + extension
                     file.save(os.path.join(UPLOAD_FOLDER, filename))
                     print "Image uploaded:",filename
                     photo = 'uploads/'+filename
                     conn = mysql.connect()
                     cursor = conn.cursor()
                     query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
-                    cursor.execute(query,(photo,str(uid)))
+                    cursor.execute(query,(photo,str(logged_in_user_id)))
                     conn.commit()
 
                     respStr = json.dumps({'message':'success'})
@@ -362,7 +386,7 @@ def upload_file():
                     return resp
                     print "error: image format should be png,jpg,jpeg,gif"
             else:
-                return redirect(url_for('profile',uid=uid))
+                return redirect(url_for('profile',uid=logged_in_user_id))
         except Exception as e:
             print e
 
@@ -372,23 +396,21 @@ def find_user():
     following = []
     try:
         if 'uid' in session:
-            uid = session['uid']
+            logged_in_user_id = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query1 ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid" % str(uid)
+            query1 ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid" % str(logged_in_user_id)
             # group by finds unique row in table
             cursor.execute(query1)
             results = cursor.fetchall()
-            query2 = "SELECT followed_id FROM followers Where follower_id = %s" % str(uid)
-            cursor.execute(query2)
-            data = cursor.fetchall()
+            data = get_users_followed_by(logged_in_user_id)
             conn.commit()
 
             for result in results:
                 for entry in data:
                     if entry[0] == result[0]:
                         following.append(entry[0])
-            return render_template('users.html',uid=uid,users=results,followings=following)
+            return render_template('users.html',uid=logged_in_user_id,users=results,followings=following)
 
         else:
             return redirect(url_for('home'))
@@ -401,27 +423,26 @@ def find_user():
 def add_tweet():
     _tweet = request.form['input_tweet']
     if 'uid' in session:
-        uid = session['uid']
-        print uid
+        logged_in_user_id = session['uid']
         if len(_tweet) == 0:
-            return redirect(url_for('profile',uid=uid))
+            return redirect(url_for('profile',uid=logged_in_user_id))
         else:
             try:
                 conn = mysql.connect()                                                                  # connecting to mysql
                 cursor = conn.cursor()
                 query = "INSERT INTO user_tweets(uid,tweet) VALUES(%s,%s)"
-                cursor.execute(query,(str(uid),_tweet))
+                cursor.execute(query,(str(logged_in_user_id),_tweet))
                 data = cursor.fetchall()
+                conn.commit()
                 print data
 
                 if len(data) == 0:
-                    conn.commit()
-                    return redirect(url_for('profile',uid=uid))
+                    return redirect(url_for('profile',uid=logged_in_user_id))
                 else:
                     return json.dumps({'error':str(data[0])})
             except Exception as e:
                 print "Error : ",e
-                return redirect(url_for('profile',uid=uid))
+                return redirect(url_for('profile',uid=logged_in_user_id))
 
 
 @app.route('/logout',methods=['GET'])
@@ -437,7 +458,5 @@ def logout():
 
 #program runs from here
 if __name__ == "__main__":
-    #print "Starting on port:",PORT
     app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
     app.run()
-    #port=PORT)

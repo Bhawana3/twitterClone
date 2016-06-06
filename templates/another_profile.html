@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>Profile</title>
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
@@ -50,10 +51,10 @@
     <div class="nav-bar">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
-                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
-                <li><a href="{{ url_for('profile',uid=user_id) }}" style="cursor:all-scroll;">Profile</a></li>
-                <li><a href="{{ url_for('wall')}}" style="cursor:all-scroll;">Home</a></li>
+                <li><a href="{{ url_for('logout') }}" style="cursor:pointer;">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:pointer; width: 90px;">Find Friends</a></li>
+                <li><a href="{{ url_for('profile',uid=user_id) }}" style="cursor:pointer;">Profile</a></li>
+                <li><a href="{{ url_for('wall')}}" style="cursor:pointer;">Home</a></li>
             </ul>
         </div>
     </div>
@@ -66,11 +67,11 @@
             <div class="followers" style="display:flex;">
                 <div class="follower">
                     <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}">FOLLOWERS</a>
-                    <div class="followers_count" style="padding-left: 50px;color: black;font-size: 25px;">{{ followers_count }}</div>
+                    <div class="followers_count" style="padding-left: 40%;color: black;font-size: 25px;">{{ followers_count }}</div>
                 </div>
                 <div class="following">
                     <a class="following_tab" href="{{ url_for('following',uid=uid) }}">FOLLOWING</a>
-                    <div class="followers_count" style="padding-left: 80px;color: black;font-size: 25px;">{{ followings_count }}</div>
+                    <div class="followers_count" style="padding-left: 60%;color: black;font-size: 25px;">{{ followings_count }}</div>
                 </div>
             </div>
             <div class="follow-unfollow">
@@ -83,14 +84,15 @@
                 </form>
             </div>
         </div>
-        {% for tweet in tweets %}
+
         <div class="user_profile">
-            {% if tweet[4] %}
-            <img class="user" id="imgUpload" src="{{ url_for('static',filename = tweet[4]) }}" alt="user-image" style="width:200px;height:200px;border-radius: 49%;border: solid 5px;border-color: #EEAE67;">
+            {% if profile_pic %}
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = profile_pic) }}" alt="user-image">
             {% else %}
-            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:200px;border-radius: 49%;border: solid 5px;border-color: #EEAE67;">
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image">
             {% endif %}
         </div>
+        {% for tweet in tweets %}
         {% if tweet[7] != None %}
         <div id="text-container">
             <div class="control-group" id="tweet-box">

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>All Users</title>
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
@@ -49,24 +50,25 @@
     <div class="nav-bar">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
-                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
-                <li><a href="{{ url_for('profile',uid=user_id) }}" style="cursor:all-scroll;">Profile</a></li>
-                <li><a href="{{ url_for('wall') }}" style="cursor:all-scroll;">Home</a></li>
+                <li><a href="{{ url_for('logout') }}" style="cursor:pointer;">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:pointer; width: 90px;">Find Friends</a></li>
+                <li><a href="{{ url_for('profile',uid=user_id) }}" style="cursor:pointer;">Profile</a></li>
+                <li><a href="{{ url_for('wall') }}" style="cursor:pointer;">Home</a></li>
             </ul>
         </div>
     </div>
     <div class="container-detail" id="user-detail">
+        <div class="user_profile">
+            {% if profile_pic %}
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = profile_pic) }}" alt="user-image">
+            {% else %}
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" >
+            {% endif %}
+        {% if users %}
         {% for user in users %}
         <div class="control-group" id="box">
             <div class="user_info" style="display:inline-flex;width:100%">
-                <div class="photo" id="profile_pic" style="width: 30%;">
-                    {% if user[4] %}
-                    <img class="user" id="img" src="{{ url_for('static',filename = user[4]) }}" alt="user-image" style="width:80px;height:80px;border-radius: 49%;padding:10px;">
-                    {% else %}
-                    <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:80px;border-radius: 49%;padding:10px;">
-                    {% endif %}
-                </div>
+
                 <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
                     <div class="username" id="name">
                         <a href="{{ url_for('profile',uid= user[0])}}" style="text-decoration: none;color: #EA6B75;">{{ user[1] }}</a>
@@ -85,6 +87,9 @@
             </div>
         </div>
         {% endfor %}
+        {% else %}
+        <p style="text-align: center;font-size: 40px;font-family: sans-serif;color: #46B5B5;"> No Followers/Following.</p>
+        {% endif %}
     </div>
 </div>
 </body>

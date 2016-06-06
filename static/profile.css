@@ -2,11 +2,15 @@
    color: #E2E1E1;
 }
 
+/* For 1500px or less */
+@media screen and (max-width: 5000px){
+
 #container{
     border-color: #ABA7A7;
     background-color:#ECF3F3;
     padding-bottom:50px;
-    min-height: 585px;
+    min-height: 700px;
+    margin: 0 auto;
     }
 
 ul {
@@ -59,32 +63,37 @@ a:hover {
 #username{
     position:absolute;
     top: 210px;
-    left: 10%;
+    left: 8%;
     font-size:20px;
     color:white;
-    margin-left: 170px;
+    margin-left: 12%;
     font-size: 23px;
     font-family: 'Droid Sans', sans-serif;
 
     }
 
+.header{
+    width:100%;
+    display:flex;
+    }
+
 .followers{
     font-family: 'Oxygen', sans-serif;
-    padding-bottom: 10px;
-    padding-left: 9px;
+    padding-bottom: 1%;
+    padding-left: 1%;
     width: 18.5%;
     border-color: #BDC7C4;
-    margin-top: 80px;
+    margin-top: 5%;
     color: #ECABB0;
     font-size: 14px;
-    padding-right: 5px;
     font-weight:bold;
+    display:flex;
     }
 
 .follower_tab{
     text-decoration:none;
     color:#4AC3A8;
-    padding-left: 21px;
+    padding-left: 2%;
     }
 
 .following_tab{
@@ -96,38 +105,45 @@ a:hover {
 
 .user {
     position: absolute;
-    top: 150px;
-    left: 4%;
+    top: 100px;
+    left: 2.5%;
+    width:15%;
+    height:auto;
+    border-radius: 49%;
+    border: solid 5px;
+    border-color: white;
 }
 
 .user_profile #update_image {
-position: absolute;
-top: 295px;
-left: 85px;
-visibility: hidden;
-border: solid 1px;
-padding: 2px;
-background-color: black;
-color: white;
-border-radius: 5px;
-text-decoration: none;
+    position: absolute;
+    top: 260px;
+    left: 4.5%;
+    visibility: hidden;
+    border: solid 1px;
+    padding: 2px;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    width: 11%;
 }
 
 .user_profile:hover #update_image {
-visibility:visible;
+    visibility:visible;
 }
 
 .message-box{
     margin-top:2%;
     margin-left: 2%;
     height: 80px;
-    width: 959px;
+    width: 89.5%;
     border: solid 1px;
     border-color: #D4E2E2;
     border-radius: 5px;
     color: #807C7C;
     font-size: 15px;
     padding-left: 20px;
+    margin-right: 15%;
       }
 
 input:focus {
@@ -145,15 +161,17 @@ button:focus {
 
 #btn-tweet{
     height: 30px;
-    width: 150px;
+    width: 12.5%;
     border-radius: 5px;
     background-color: #ECABB0;
     border-color: transparent;
     color: white;
     font-family: sans-serif;
     font-size: 14px;
-    margin-left: 86.7%;
+    margin-left: 80%;
     margin-top: 1%;
+    cursor: pointer;
+    margin-right: 15%;
         }
 
 
@@ -168,7 +186,7 @@ button:focus {
 
 
 #tweet-post{
-    font-size: 20px;
+    font-size: 18px;
     color: #615E5E;
     padding-left: 5px;
     padding-top:10px;
@@ -189,6 +207,19 @@ button:focus {
     border-color: #ECF3F3;
     }
 
+.delete-tweet{
+    float: right;
+    margin-top: 5px;
+    margin-right: 15px;
+    background-image: url('/static/delete1.png');
+    background-color: transparent;
+    width: 15px;
+    cursor: pointer;
+    background-size: 15px;
+    border: none;
+    background-repeat: no-repeat;
+    height: 15px;
+        }
 /* The Modal (background) */
 .modal {
     display: none; /* Hidden by default */
@@ -211,7 +242,6 @@ button:focus {
     border: 1px solid #888;
     width: 40%;
     border-radius: 5px;
-    height:250px;
 }
 
 /* The Close Button */
@@ -239,7 +269,7 @@ button:focus {
     padding: 10px;
     padding-left: 22px;
     padding-right: 22px;
-    margin-left: 800%;
+    margin-left: 750px;
     margin-top: 50px;
     font-size: 14px;
     font-weight: bold;
@@ -250,3 +280,76 @@ button:focus {
 .follow_button:hover{
     text-decoration:underline;
     }
+
+}
+
+@media screen and (max-width: 480px){
+    .user {
+        display: none;
+    }
+    .message-box{
+        margin-top: 2%;
+        margin-left: 21%;
+        height: 50px;
+        width: 260px;
+        border: solid 1px;
+        border-color: #D4E2E2;
+        border-radius: 5px;
+        color: #807C7C;
+        font-size: 15px;
+        padding-left: 20px;
+          }
+
+    #btn-tweet {
+        height: 20px;
+        width: 15%;
+        border-radius: 5px;
+        background-color: #ECABB0;
+        border-color: transparent;
+        color: white;
+        font-family: sans-serif;
+        font-size: 14px;
+        margin-left: 79%;
+        margin-top: 1%;
+    }
+    #username {
+        position: absolute;
+        top: 210px;
+        margin-left: 50px;
+        font-family: 'Droid Sans', sans-serif;
+    }
+
+    .header {
+        display:block;
+        }
+
+    .followers{
+        font-family: 'Oxygen', sans-serif;
+        border-color: #BDC7C4;
+        color: #ECABB0;
+        font-size: 10px;
+        font-weight:bold;
+        display: flex;
+        margin-left:130px;
+        }
+
+    #image-box{
+        width:100%;
+        height:10%;
+        }
+}
+
+/*@media screen and (max-width: 1280px){
+    .message-box{
+            margin-top: 2%;
+            height: 70px;
+            width: 900px;
+            border: solid 1px;
+            border-color: #D4E2E2;
+            border-radius: 5px;
+            color: #807C7C;
+            font-size: 15px;
+            padding-left: 20px;
+              }
+}
+*/

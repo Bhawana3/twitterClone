@@ -1,7 +1,10 @@
+@media screen and (max-width: 2500px){
+
 #container {
     background-color: white;
-    height:610px;
+    min-height:700px;
     width:100%;
+    margin: 0 auto;
     }
 
 ul {
@@ -41,11 +44,10 @@ a:hover {
     }
 
 #container-form{
-    margin-left: 350px;
+    margin-left: 28%;
     background-color: #3B488C;
-    width: 650px;
-    height: 450px;
-    position: absolute;
+    width: 45%;
+    height: auto;
     margin-top: 60px;
     border-radius: 5px;
     }
@@ -67,19 +69,19 @@ a:hover {
 
 button {
     height: 53px;
-    width: 360px;
+    width: 51%;
     border-radius: 5px;
     background-color: #ECABB0;
     margin-top: 20px;
     color: white;
     font-size: large;
     border-color: transparent;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
      }
 
 #email {
     height: 42px;
-    width: 350px;
+    width: 51%;
     border-radius: 5px;
     border-color: transparent;
     background-color: #ECEBE9;
@@ -89,7 +91,7 @@ button {
 
 #password {
     height: 42px;
-    width: 350px;
+    width: 51%;
     border-radius: 5px;
     border-color: transparent;
     background-color: #ECEBE9;
@@ -107,3 +109,4 @@ button {
     background-color:white;
     color:#ECABB0;
     }
+}

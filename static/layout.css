@@ -1,8 +1,9 @@
+@media screen and (max-width: 2500px){
+
 .container-box{
     text-align: center;
     background-color: white;
     height:200px;
-    padding-top: 150px;
     border-radius: 5px;
 }
 
@@ -65,3 +66,5 @@ a:hover {
     background-color:white;
     color:#ECABB0;
     }
+
+}

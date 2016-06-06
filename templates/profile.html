@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>Profile</title>
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
@@ -9,6 +10,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script>
+    $(document).ready(function(){
+        $('.delete-tweet').click(function(){
+            var element = $(this);
+            var user_tweet = $(this).attr('tweet');
+            $.ajax({
+                url:'/delete_tweet',
+                data:{'tid':user_tweet},
+                type:'post',
+                success:function(response){
+                    if(response["message"] === "success"){
+                        console.log("tweet deleted successfully!");
+                        element.closest('div').remove();
+                    }
+                    else if(response["message"] === "failure"){
+                        console.log("tweet already deleted!");
+                    }
+                }
+            });
+        });
+    });
     function readURL(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -58,10 +79,10 @@
     <div class="nav-bar">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
-                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
-                <li class="active" id="home"><a href="" style="cursor:all-scroll;">Profile</a></li>
-                <li><a href="{{ url_for('wall')}}" style="cursor:all-scroll;">Home</a></li>
+                <li><a href="{{ url_for('logout') }}" style="cursor:pointer;">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:pointer; width: 90px;">Find Friends</a></li>
+                <li class="active" id="home"><a href="" style="cursor:pointer;">Profile</a></li>
+                <li><a href="{{ url_for('wall')}}" style="cursor:pointer;">Home</a></li>
             </ul>
         </div>
     </div>
@@ -70,34 +91,11 @@
         <div id="username">
             <h2>{{ username }}</h2>
         </div>
-        <div style="width:100%;display:flex">
-            <div class="followers" style="display:flex;">
-                <div class="follower">
-                    <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}">FOLLOWERS</a>
-                    <div class="followers_count" style="padding-left: 50px;color: black;font-size: 25px;">{{ followers_count }}</div>
-                </div>
-                <div class="following">
-                    <a class="following_tab" href="{{ url_for('following',uid=uid) }}">FOLLOWING</a>
-                    <div class="followers_count" style="padding-left: 80px;color: black;font-size: 25px;">{{ followings_count }}</div>
-                </div>
-            </div>
-            <div id="input-box">
-                <form action="/tweet" method="POST">
-                    <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
-                    <div class="control-group">
-                        <div class="controls">
-                            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% for tweet in tweets %}
         <div class="user_profile">
-            {% if tweet[4] %}
-            <img class="user" id="imgUpload" src="{{ url_for('static',filename = tweet[4]) }}" alt="user-image" style="width:200px;height:200px;border-radius: 49%;border: solid 5px;border-color: #EEAE67;">
+            {% if profile_pic %}
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = profile_pic) }}" alt="user-image">
             {% else %}
-            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:200px;border-radius: 49%;border: solid 5px;border-color: #EEAE67;">
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" >
             {% endif %}
             <a data-target="#myModal" data-toggle="modal" class="MainNavText" id="update_image" href="#myModal">Update profile picture</a>
             <!-- Modal -->
@@ -109,11 +107,13 @@
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <form id="upload-file" method="POST" enctype="multipart/form-data" >
-                                <hi style="font-size: 30px;font-family: sans-serif;">Upload Profile Picture</hi>
+                                <h1 style="font-size: 30px;font-family: sans-serif; color: #ECABB0;">Upload Profile Picture</h1>
                                 <div style="display: table-caption;">
                                     <input class="file" type=file name=photo onchange="readURL(this);" accept="image/*" style="margin-top: 10px;">
-                                    <img id="upload-image" src="#" alt="your image" style="margin-top:10px;" />
-                                    <input class="upload" type=button value=Upload style="position: absolute;top: 450px;left: 400px;">
+                                    <img id="upload-image" style="margin-top:10px;" />
+                                    <div>
+                                        <input class="upload" type=button value=Upload style="margin-top: 30px;">
+                                    </div>
                                 </div>
                                 <p id="show" style="display:none;color:green;">Upload Successful!!</p>
                                 <p id="failure" style="display:none;color:red;">Upload Failure!!</p>
@@ -123,9 +123,36 @@
                 </div>
             </div>
         </div>
+        <div class="header">
+            <div class="followers">
+                <div class="follower">
+                    <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}">FOLLOWERS</a>
+                    <div class="followers_count" style="padding-left: 40%;color: black;font-size: 25px;">{{ followers_count }}</div>
+                </div>
+                <div class="following">
+                    <a class="following_tab" href="{{ url_for('following',uid=uid) }}">FOLLOWING</a>
+                    <div class="followers_count" style="padding-left: 60%;color: black;font-size: 25px;">{{ followings_count }}</div>
+                </div>
+            </div>
+            <div id="input-box" style="width: 80%">
+                <form action="/tweet" method="POST">
+                    <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
+                    <div class="control-group">
+                        <div class="controls">
+                            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% for tweet in tweets %}
         {% if tweet[8] != None %}
         <div id="text-container">
             <div class="control-group" id="tweet-box">
+                <form>
+                    <input class="delete-tweet" tweet="{{ tweet[5] }}" type="button"></input>
+                </form>
                 <div class="controls-time" id="time">{{ tweet[8] }}</div>
                 <div class="controls" id="tweet-post"> {{ tweet[7] }}</div>
             </div>

@@ -14,10 +14,10 @@
     <div class="nav-bar">
         <div class="nav-collapse collapse">
             <ul class="nav">
-                <li><a href="{{ url_for('logout') }}" style="cursor:all-scroll;">Logout</a></li>
-                <li><a href="{{ url_for('find_user') }}" style="cursor:all-scroll;">Search</a></li>
-                <li><a href="{{ url_for('profile',uid=uid)}}" style="cursor:all-scroll;">Profile</a></li>
-                <li class="active" id="home"><a href="" style="cursor:all-scroll;">Home</a></li>
+                <li><a href="{{ url_for('logout') }}" style="cursor:pointer;">Logout</a></li>
+                <li><a href="{{ url_for('find_user') }}" style="cursor:pointer; width: 90px;">Find Friends</a></li>
+                <li><a href="{{ url_for('profile',uid=uid)}}" style="cursor:pointer;">Profile</a></li>
+                <li class="active" id="home"><a href="" style="cursor:pointer;">Home</a></li>
             </ul>
         </div>
     </div>
@@ -28,9 +28,9 @@
             <div class="info">
                 <div class="user_photo" id="user_picture" style="width: 12%;">
                     {% if user_detail[4] %}
-                    <img class="userimage" id="image" src="{{ url_for('static',filename = user_detail[4]) }}" alt="user-image" style="width:80px;height:80px;border-radius: 49%;margin-left: 10px;border: solid 3px;border-color:#EEAE67;;position: absolute;top: 100px;">
+                    <img class="userimage" id="image" src="{{ url_for('static',filename = user_detail[4]) }}" alt="user-image" >
                     {% else %}
-                    <img class="userimage" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:80px;border-radius: 49%;margin-left: 10px;border: solid 3px;border-color:#EEAE67;position: absolute;top: 100px;">
+                    <img class="userimage" src="{{ url_for('static',filename='user.png') }}" alt="user-image" >
                     {% endif %}
                 </div>
                 <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
@@ -40,7 +40,7 @@
                 </div>
             </div>
             {% endif %}
-            <div style="margin-left: 60px;padding-top: 35px;font-family: 'Oxygen', sans-serif;">
+            <div style="margin-left: 25%;padding-top: 35px;font-family: 'Oxygen', sans-serif;">
                 <a class="followers" href="{{ url_for('followers',uid=uid) }}" >Followers</a>
                 <a class="following" href="{{ url_for('following',uid=uid) }}" >Following</a>
             </div>
@@ -51,7 +51,7 @@
                     <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
                     <div class="control-group">
                         <div class="controls">
-                            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet" style="cursor:all-scroll;"/>
+                            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
                         </div>
                     </div>
                 </form>
@@ -74,7 +74,7 @@
                                 </div>
                                 <div class="user[3]" id="time" style="padding-left: 20px;font-size: 13px;font-family: sans-serif;color: #B1AEAE;"> {{ user[4] }}</div>
                             </div>
-                            <div class="user[2]" id="tweet" style="font-family: 'Oxygen', sans-serif;font-size: 18px;color: #615E5E;"> {{ user[3] }}</div>
+                            <div class="user[2]" id="tweet" style="font-family: 'Oxygen', sans-serif;font-size: 15px;color: #615E5E;"> {{ user[3] }}</div>
                         </div>
                     </div>
                 </div>

@@ -1,8 +1,10 @@
+@media screen and (max-width: 2500px){
 #container{
     border-color: #ABA7A7;
     background-color:#ECF3F3;
     padding-bottom:50px;
-    min-height: 585px;
+    min-height: 700px;
+    margin: 0 auto;
     }
 
 ul {
@@ -49,6 +51,8 @@ a:hover {
     border-radius:5px;
     padding-bottom:10px;
     display: inline-block;
+    word-wrap: break-word;
+    padding-right: 10px;
     }
 
 #name {
@@ -79,3 +83,5 @@ a:hover {
 .follow_button:hover{
     text-decoration:underline;
     }
+
+}
