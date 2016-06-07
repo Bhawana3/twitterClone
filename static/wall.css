@@ -139,7 +139,6 @@ button:focus {
 #btn-tweet:hover{
     background-color:white;
     color:#EA6B75;
-    cursor: pointer;
     }
 
 #btn-tweet{
