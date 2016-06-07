@@ -62,8 +62,8 @@ a:hover {
 
 #username{
     position:absolute;
-    top: 210px;
-    left: 8%;
+    top: 34%;
+    left: 180px;
     font-size:20px;
     color:white;
     margin-left: 12%;
@@ -75,6 +75,7 @@ a:hover {
 .header{
     width:100%;
     display:flex;
+    position: relative;
     }
 
 .followers{
@@ -103,29 +104,33 @@ a:hover {
     }
 
 
-.user {
+.user_profile {
     position: absolute;
-    top: 100px;
+    top: 25%;
     left: 2.5%;
-    width:15%;
+    width:220px;
+    height:220px;
     height:auto;
-    border-radius: 49%;
-    border: solid 5px;
-    border-color: white;
 }
+
+.user{
+    border: solid 5px;
+    border-radius: 49%;
+    border-color: white;
+    position: relative;
+    }
 
 .user_profile #update_image {
     position: absolute;
-    top: 260px;
-    left: 4.5%;
+    top: 43%;
+    left: 16%;
     visibility: hidden;
     border: solid 1px;
-    padding: 2px;
+    padding: 5px;
     background-color: black;
     color: white;
     border-radius: 5px;
     text-decoration: none;
-    width: 11%;
 }
 
 .user_profile:hover #update_image {
@@ -314,7 +319,7 @@ button:focus {
     }
     #username {
         position: absolute;
-        top: 210px;
+        top: 35%;
         margin-left: 50px;
         font-family: 'Droid Sans', sans-serif;
     }

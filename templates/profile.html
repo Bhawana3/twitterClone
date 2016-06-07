@@ -87,79 +87,81 @@
         </div>
     </div>
     <div id="image-box">
-        <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" style="height:250px;width:100%">
+        <img class="background" src="{{ url_for('static',filename='background1.jpg') }}" alt="background-image" width="100%">
+        <div class="user_profile">
+            {% if profile_pic %}
+            <img class="user" id="imgUpload" src="{{ url_for('static',filename = profile_pic) }}" alt="user-image" width="100%" height="220px">
+            {% else %}
+            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" width="100%" height="220px">
+            {% endif %}
+            <div>
+                <a data-target="#myModal" data-toggle="modal" class="MainNavText" id="update_image" href="#myModal">Update profile picture</a>
+                <!-- Modal -->
+                <div id="myModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <form id="upload-file" method="POST" enctype="multipart/form-data" >
+                                    <h1 style="font-size: 30px;font-family: sans-serif; color: #ECABB0;">Upload Profile Picture</h1>
+                                    <div style="display: table-caption;">
+                                        <input class="file" type=file name=photo onchange="readURL(this);" accept="image/*" style="margin-top: 10px;">
+                                        <img id="upload-image" style="margin-top:10px;" />
+                                        <div>
+                                            <input class="upload" type=button value=Upload style="margin-top: 30px;">
+                                        </div>
+                                    </div>
+                                    <p id="show" style="display:none;color:green;">Upload Successful!!</p>
+                                    <p id="failure" style="display:none;color:red;">Upload Failure!!</p>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="username">
             <h2>{{ username }}</h2>
         </div>
-        <div class="user_profile">
-            {% if profile_pic %}
-            <img class="user" id="imgUpload" src="{{ url_for('static',filename = profile_pic) }}" alt="user-image">
-            {% else %}
-            <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" >
-            {% endif %}
-            <a data-target="#myModal" data-toggle="modal" class="MainNavText" id="update_image" href="#myModal">Update profile picture</a>
-            <!-- Modal -->
-            <div id="myModal" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <form id="upload-file" method="POST" enctype="multipart/form-data" >
-                                <h1 style="font-size: 30px;font-family: sans-serif; color: #ECABB0;">Upload Profile Picture</h1>
-                                <div style="display: table-caption;">
-                                    <input class="file" type=file name=photo onchange="readURL(this);" accept="image/*" style="margin-top: 10px;">
-                                    <img id="upload-image" style="margin-top:10px;" />
-                                    <div>
-                                        <input class="upload" type=button value=Upload style="margin-top: 30px;">
-                                    </div>
-                                </div>
-                                <p id="show" style="display:none;color:green;">Upload Successful!!</p>
-                                <p id="failure" style="display:none;color:red;">Upload Failure!!</p>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="header">
-            <div class="followers">
-                <div class="follower">
-                    <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}">FOLLOWERS</a>
-                    <div class="followers_count" style="padding-left: 40%;color: black;font-size: 25px;">{{ followers_count }}</div>
-                </div>
-                <div class="following">
-                    <a class="following_tab" href="{{ url_for('following',uid=uid) }}">FOLLOWING</a>
-                    <div class="followers_count" style="padding-left: 60%;color: black;font-size: 25px;">{{ followings_count }}</div>
-                </div>
-            </div>
-            <div id="input-box" style="width: 80%">
-                <form action="/tweet" method="POST">
-                    <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
-                    <div class="control-group">
-                        <div class="controls">
-                            <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        {% for tweet in tweets %}
-        {% if tweet[8] != None %}
-        <div id="text-container">
-            <div class="control-group" id="tweet-box">
-                <form>
-                    <input class="delete-tweet" tweet="{{ tweet[5] }}" type="button"></input>
-                </form>
-                <div class="controls-time" id="time">{{ tweet[8] }}</div>
-                <div class="controls" id="tweet-post"> {{ tweet[7] }}</div>
-            </div>
-        </div>
-        {% endif %}
-        {% endfor %}
     </div>
+    <div class="header">
+        <div class="followers">
+            <div class="follower">
+                <a class="follower_tab" href="{{ url_for('followers',uid=uid) }}">FOLLOWERS</a>
+                <div class="followers_count" style="padding-left: 40%;color: black;font-size: 25px;">{{ followers_count }}</div>
+            </div>
+            <div class="following">
+                <a class="following_tab" href="{{ url_for('following',uid=uid) }}">FOLLOWING</a>
+                <div class="followers_count" style="padding-left: 60%;color: black;font-size: 25px;">{{ followings_count }}</div>
+            </div>
+        </div>
+        <div id="input-box" style="width: 80%">
+            <form action="/tweet" method="POST">
+                <input class="message-box" placeholder="What's on your mind?" name="input_tweet"/>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="submit" class="btn btn-success" id="btn-tweet" value="Tweet"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% for tweet in tweets %}
+    {% if tweet[8] != None %}
+    <div id="text-container">
+        <div class="control-group" id="tweet-box">
+            <form>
+                <input class="delete-tweet" tweet="{{ tweet[5] }}" type="button"></input>
+            </form>
+            <div class="controls-time" id="time">{{ tweet[8] }}</div>
+            <div class="controls" id="tweet-post"> {{ tweet[7] }}</div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
 </div>
 </body>
 </html>
