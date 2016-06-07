@@ -11,6 +11,7 @@
     background-color: #ECF3F3;
     min-height: 700px;
     margin: 0 auto;
+    overflow-x: hidden;
     }
 
 ul {

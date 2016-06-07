@@ -65,6 +65,8 @@ def signup():
         except Exception as e:
             pass
             print "error :",e
+        finally:
+            conn.close()
 
     else:
         return render_template('register.html')
@@ -102,6 +104,9 @@ def login():
             except Exception as e:
                 print "Error entering in table:",e
 
+            finally:
+                conn.close()
+
             if len(data) == 1:
                 uid = data[0][0]
                 username = data[0][1]
@@ -130,6 +135,7 @@ def login():
                         return render_template('login.html')
                 except Exception as e:
                     print "Error:",e
+
             else:
                 flash('Please enter a valid email address')
                 return render_template('login.html')
@@ -189,6 +195,8 @@ def profile(uid):
             return render_template('another_profile.html',uid=userid,username=username,profile_pic=profile_pic,tweets=data,user_id=logged_in_user_id,is_followed=is_followed_by_logged_in_user,followers_count=len(followers),followings_count=len(followings))
     except Exception as e:
         print "Error : ",e
+    finally:
+        conn.close()
 
 @app.route('/delete_tweet',methods=['POST'])
 def delete_tweet():
@@ -209,7 +217,8 @@ def delete_tweet():
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
         return resp
-
+    finally:
+        conn.close()
 
 def get_users_followed_by(uid):
     conn = mysql.connect()
@@ -249,6 +258,8 @@ def followers(uid):
     except Exception as e:
         print "Error : ",e
         return redirect(url_for('profile',uid=uid))
+    finally:
+        conn.close()
 
 @app.route('/profile/<uid>/following')
 def following(uid):
@@ -279,6 +290,8 @@ def following(uid):
     except Exception as e:
         print "Error : ",e
         return redirect(url_for('profile',uid=uid))
+    finally:
+        conn.close()
 
 @app.route('/follow',methods=['POST'])
 def follow():
@@ -305,6 +318,8 @@ def follow():
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
         return resp
+    finally:
+        conn.close()
 
 @app.route('/unfollow',methods=['POST'])
 def unfollow():
@@ -327,6 +342,8 @@ def unfollow():
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
         return resp
+    finally:
+        conn.close()
 
 @app.route('/home')
 def wall():
@@ -348,6 +365,9 @@ def wall():
             return redirect(url_for('login'))
     except Exception as e:
         print "error: ",e
+
+    finally:
+        conn.close()
 
 
 # For upload profile pic
@@ -389,6 +409,8 @@ def upload_file():
                 return redirect(url_for('profile',uid=logged_in_user_id))
         except Exception as e:
             print e
+        finally:
+            conn.close()
 
 #shows list of all the registered users on the app
 @app.route('/users')
@@ -417,6 +439,8 @@ def find_user():
     except Exception as e:
         print "error :",e
         return redirect(url_for('home'))
+    finally:
+        conn.close()
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
@@ -443,6 +467,8 @@ def add_tweet():
             except Exception as e:
                 print "Error : ",e
                 return redirect(url_for('profile',uid=logged_in_user_id))
+            finally:
+                conn.close()
 
 
 @app.route('/logout',methods=['GET'])

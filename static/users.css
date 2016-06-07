@@ -55,6 +55,15 @@ a:hover {
     padding-right: 10px;
     }
 
+.user{
+    width:80px;
+    height:80px;
+    border-radius: 49%;
+    margin:10px;
+    border: solid 2px;
+    color: #D0DADA;
+    }
+
 #name {
     font-size: 20px;
     color: #4AC3A8;

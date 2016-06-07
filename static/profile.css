@@ -11,6 +11,7 @@
     padding-bottom:50px;
     min-height: 700px;
     margin: 0 auto;
+    overflow-x: hidden;
     }
 
 ul {
@@ -84,7 +85,7 @@ a:hover {
     padding-left: 1%;
     width: 18.5%;
     border-color: #BDC7C4;
-    margin-top: 5%;
+    margin-top: 7%;
     color: #ECABB0;
     font-size: 14px;
     font-weight:bold;
@@ -123,14 +124,15 @@ a:hover {
 .user_profile #update_image {
     position: absolute;
     top: 43%;
-    left: 16%;
+    left: 14%;
     visibility: hidden;
     border: solid 1px;
     padding: 5px;
-    background-color: black;
-    color: white;
+    background-color: white;
+    color: black;
     border-radius: 5px;
     text-decoration: none;
+    border-color: white;
 }
 
 .user_profile:hover #update_image {
@@ -243,7 +245,7 @@ button:focus {
 .modal-content {
     background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
+    padding: 0 20px 20px 20px;
     border: 1px solid #888;
     width: 40%;
     border-radius: 5px;

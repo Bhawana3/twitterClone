@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>All Users</title>
+    <link rel="icon" href="{{ url_for('static',filename='red-bird-icon.png') }}">
     <link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Josefin+Sans' rel='stylesheet' type='text/css'>
     <link href="{{ url_for('static',filename='users.css') }}" rel="stylesheet" type="text/css">
@@ -63,9 +64,9 @@
             <div class="user_info" style="display:inline-flex;width:100%">
                 <div class="photo" id="profile_pic" style="width: 30%;">
                     {% if user[4] %}
-                    <img class="user" id="img" src="{{ url_for('static',filename = user[4]) }}" alt="user-image" style="width:80px;height:80px;border-radius: 49%;padding:10px;">
+                    <img class="user" id="img" src="{{ url_for('static',filename = user[4]) }}" alt="user-image">
                     {% else %}
-                    <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image" style="width:80px;border-radius: 49%;padding:10px;">
+                    <img class="user" src="{{ url_for('static',filename='user.png') }}" alt="user-image">
                     {% endif %}
                 </div>
                 <div style="padding-left: 10px;word-wrap: break-word;width:70%;">
