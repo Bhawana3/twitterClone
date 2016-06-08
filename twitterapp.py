@@ -53,10 +53,13 @@ def signup():
             data = cursor.fetchall()
             print len(data)
             if len(data) == 0:
+                conn = mysql.connect()
+                cursor = conn.cursor()
                 insert_query = "INSERT INTO users(username,email,password) VALUES(%s,%s,%s)"
                 print insert_query
                 cursor.execute(insert_query,(_username,_email,_password))
                 conn.commit()
+                conn.close()
                 return redirect(url_for('login'))
             else:
                 flash("email already exists!!")
@@ -65,9 +68,6 @@ def signup():
         except Exception as e:
             pass
             print "error :",e
-        finally:
-            conn.close()
-
     else:
         return render_template('register.html')
 
@@ -100,12 +100,11 @@ def login():
                 query = "SELECT * FROM users WHERE email=%s and password=%s"
                 cursor.execute(query, (_email,_password))
                 data = cursor.fetchall()
+                conn.commit()
+                conn.close()
 
             except Exception as e:
                 print "Error entering in table:",e
-
-            finally:
-                conn.close()
 
             if len(data) == 1:
                 uid = data[0][0]
@@ -160,6 +159,7 @@ def profile(uid):
             cursor.execute(sql_query)
             results = cursor.fetchall()
             conn.commit()
+            conn.close()
             print results
 
             for result in results:
@@ -178,6 +178,7 @@ def profile(uid):
             cursor.execute(sql_query)
             results = cursor.fetchall()
             conn.commit()
+            conn.close()
 
             for result in results:
                 print result
@@ -195,8 +196,6 @@ def profile(uid):
             return render_template('another_profile.html',uid=userid,username=username,profile_pic=profile_pic,tweets=data,user_id=logged_in_user_id,is_followed=is_followed_by_logged_in_user,followers_count=len(followers),followings_count=len(followings))
     except Exception as e:
         print "Error : ",e
-    finally:
-        conn.close()
 
 @app.route('/delete_tweet',methods=['POST'])
 def delete_tweet():
@@ -207,6 +206,7 @@ def delete_tweet():
         query = "DELETE FROM user_tweets WHERE t_id = %s" % str(tid)
         cursor.execute(query)
         conn.commit()
+        conn.close()
         respStr = json.dumps({'message':'success'})
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
@@ -217,8 +217,6 @@ def delete_tweet():
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
         return resp
-    finally:
-        conn.close()
 
 def get_users_followed_by(uid):
     conn = mysql.connect()
@@ -245,21 +243,20 @@ def followers(uid):
             print "results = ", results
             data = get_users_followed_by(logged_in_user_id)        # check followings of logged-in user
             conn.commit()
+            conn.close()
 
             for result in results:
                 for entry in data:
                     if entry[0] == result[0]:
                         following.append(entry[0])
 
-            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=logged_in_user_id)
+            return render_template('followers.html',title= "Followers",uid=uid,users=results,followings=following,user_id=logged_in_user_id)
 
         else:
             return redirect(url_for('login'))
     except Exception as e:
         print "Error : ",e
         return redirect(url_for('profile',uid=uid))
-    finally:
-        conn.close()
 
 @app.route('/profile/<uid>/following')
 def following(uid):
@@ -277,21 +274,20 @@ def following(uid):
             data = get_users_followed_by(logged_in_user_id)
 
             conn.commit()
+            conn.close()
 
             for result in results:
                 for entry in data:
                     if entry[0] == result[0]:
                         following.append(entry[0])
 
-            return render_template('followers.html',uid=uid,users=results,followings=following,user_id=logged_in_user_id)
+            return render_template('followers.html',title= 'Following',uid=uid,users=results,followings=following,user_id=logged_in_user_id)
 
         else:
             redirect(url_for('login'))
     except Exception as e:
         print "Error : ",e
         return redirect(url_for('profile',uid=uid))
-    finally:
-        conn.close()
 
 @app.route('/follow',methods=['POST'])
 def follow():
@@ -307,6 +303,7 @@ def follow():
                 print query
                 cursor.execute(query,(str(session['uid']),str(uid)))
                 conn.commit()
+                conn.close()
                 respStr = json.dumps({'message':'success'})
                 resp = flask.Response(respStr)
                 resp.headers['Content-Type'] = 'application/json'
@@ -318,8 +315,6 @@ def follow():
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
         return resp
-    finally:
-        conn.close()
 
 @app.route('/unfollow',methods=['POST'])
 def unfollow():
@@ -332,6 +327,7 @@ def unfollow():
             print query
             cursor.execute(query)
             conn.commit()
+            conn.close()
             respStr = json.dumps({'message':'success'})
             resp = flask.Response(respStr)
             resp.headers['Content-Type'] = 'application/json'
@@ -342,8 +338,6 @@ def unfollow():
         resp = flask.Response(respStr)
         resp.headers['Content-Type'] = 'application/json'
         return resp
-    finally:
-        conn.close()
 
 @app.route('/home')
 def wall():
@@ -360,14 +354,14 @@ def wall():
             user_detail = cursor.fetchone()
             conn.commit()
             print user_detail
+            conn.close()
             return render_template('wall.html',users=data,user_detail=user_detail,uid=logged_in_user_id)
         else:
+            print "redirect url to login"
             return redirect(url_for('login'))
     except Exception as e:
         print "error: ",e
-
-    finally:
-        conn.close()
+        return redirect(url_for('login'))
 
 
 # For upload profile pic
@@ -394,6 +388,7 @@ def upload_file():
                     query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
                     cursor.execute(query,(photo,str(logged_in_user_id)))
                     conn.commit()
+                    conn.close()
 
                     respStr = json.dumps({'message':'success'})
                     resp = flask.Response(respStr)
@@ -409,8 +404,6 @@ def upload_file():
                 return redirect(url_for('profile',uid=logged_in_user_id))
         except Exception as e:
             print e
-        finally:
-            conn.close()
 
 #shows list of all the registered users on the app
 @app.route('/users')
@@ -427,6 +420,7 @@ def find_user():
             results = cursor.fetchall()
             data = get_users_followed_by(logged_in_user_id)
             conn.commit()
+            conn.close()
 
             for result in results:
                 for entry in data:
@@ -435,12 +429,11 @@ def find_user():
             return render_template('users.html',uid=logged_in_user_id,users=results,followings=following)
 
         else:
-            return redirect(url_for('home'))
+            print "redirecting to login"
+            return redirect(url_for('login'))
     except Exception as e:
         print "error :",e
-        return redirect(url_for('home'))
-    finally:
-        conn.close()
+        return redirect(url_for('login'))
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
@@ -458,6 +451,7 @@ def add_tweet():
                 cursor.execute(query,(str(logged_in_user_id),_tweet))
                 data = cursor.fetchall()
                 conn.commit()
+                conn.close()
                 print data
 
                 if len(data) == 0:
@@ -467,8 +461,6 @@ def add_tweet():
             except Exception as e:
                 print "Error : ",e
                 return redirect(url_for('profile',uid=logged_in_user_id))
-            finally:
-                conn.close()
 
 
 @app.route('/logout',methods=['GET'])
