@@ -1,7 +1,9 @@
 import flask
 from flask import Flask,request,json,render_template,session,redirect,url_for,escape,flash
 from flask.ext.mysql import MySQL
-import os
+from passlib.hash import sha256_crypt
+
+
 app = Flask(__name__)
 
 mysql = MySQL()
@@ -15,12 +17,6 @@ try:
     mysql.init_app(app)
 except Exception as e:
     print "Error : ",e
-
-#input date in 09-07-2013 returns date in July 09,2013
-def convert_date(date_string):
-    import datetime
-    date = datetime.datetime.strptime(date_string, '%Y-%m-%d')
-    return date.strftime('%b %d,%Y')
 
 def connect_to_mysql(query):
     conn = mysql.connect()
@@ -44,6 +40,7 @@ def signup():
         _username = request.form['username']
         _email = request.form['email']
         _password = request.form['password']
+        hash_password = sha256_crypt.encrypt(_password)
 
         try:
             conn = mysql.connect()
@@ -53,11 +50,9 @@ def signup():
             data = cursor.fetchall()
             print len(data)
             if len(data) == 0:
-                conn = mysql.connect()
-                cursor = conn.cursor()
                 insert_query = "INSERT INTO users(username,email,password) VALUES(%s,%s,%s)"
                 print insert_query
-                cursor.execute(insert_query,(_username,_email,_password))
+                cursor.execute(insert_query,(_username,_email,hash_password))
                 conn.commit()
                 conn.close()
                 return redirect(url_for('login'))
@@ -68,6 +63,7 @@ def signup():
         except Exception as e:
             pass
             print "error :",e
+            return redirect(url_for('home'))
     else:
         return render_template('register.html')
 
@@ -84,6 +80,7 @@ def login():
                 return render_template('login.html')
         except Exception as e:
             print "Error occurred:",e
+	    return redirect(url_for('home'))
 
     elif request.method == 'POST':
         if ('uid' in session) and ('email' in session) and ('username' in session):
@@ -97,24 +94,29 @@ def login():
             try:
                 conn = mysql.connect()
                 cursor = conn.cursor()
-                query = "SELECT * FROM users WHERE email=%s and password=%s"
-                cursor.execute(query, (_email,_password))
-                data = cursor.fetchall()
+                print str(_email)
+                query = "SELECT * FROM users WHERE email = '" + _email + "'"
+                print query
+                cursor.execute(query)
+                data = cursor.fetchone()
                 conn.commit()
                 conn.close()
 
             except Exception as e:
                 print "Error entering in table:",e
 
-            if len(data) == 1:
-                uid = data[0][0]
-                username = data[0][1]
-                email = data[0][2]
-                password = data[0][3]
+            print len(data)
+            if len(data) > 0:
+                uid = data[0]
+                username = data[1]
+                email = data[2]
+                password = data[3]
                 print username,email
 
                 try:
-                    if (email == _email) and (password == _password):
+                    #verify password hash
+                    if sha256_crypt.verify(request.form['password'],password):
+                        session['logged_in'] = True
                         # User credentials are correct
 
                         # Delete old values from session
@@ -126,15 +128,29 @@ def login():
                         session['username'] = username
                         session['uid'] = uid
                         session['email'] = email
+                        print "User:",username,"successfully logged-in. Redirecting to profile page."
 
+                        return redirect(url_for('profile',uid=uid))
+                    else:
+                        flash('Invalid credentials, try again.')
+                        return render_template('login.html')
+
+                except Exception as e:
+                    print "error : ",e
+                    if email == _email and password == _password:
+                        # Delete old values from session
+                        print "Logging out any user if he's already logged-in."
+                        session.clear()
+                        # Log the user in.
+                        print "Logging in the user:", username
+                        session['username'] = username
+                        session['uid'] = uid
+                        session['email'] = email
                         print "User:",username,"successfully logged-in. Redirecting to profile page."
                         return redirect(url_for('profile',uid=uid))
                     else:
-                        flash('Invalid email/password combination')
+                        flash('Invalid credentials, try again.')
                         return render_template('login.html')
-                except Exception as e:
-                    print "Error:",e
-
             else:
                 flash('Please enter a valid email address')
                 return render_template('login.html')
@@ -196,6 +212,7 @@ def profile(uid):
             return render_template('another_profile.html',uid=userid,username=username,profile_pic=profile_pic,tweets=data,user_id=logged_in_user_id,is_followed=is_followed_by_logged_in_user,followers_count=len(followers),followings_count=len(followings))
     except Exception as e:
         print "Error : ",e
+	return redirect(url_for('home'))
 
 @app.route('/delete_tweet',methods=['POST'])
 def delete_tweet():
@@ -358,10 +375,10 @@ def wall():
             return render_template('wall.html',users=data,user_detail=user_detail,uid=logged_in_user_id)
         else:
             print "redirect url to login"
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
     except Exception as e:
         print "error: ",e
-        return redirect(url_for('login'))
+        return redirect(url_for('home'))
 
 
 # For upload profile pic
@@ -430,10 +447,10 @@ def find_user():
 
         else:
             print "redirecting to login"
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
     except Exception as e:
         print "error :",e
-        return redirect(url_for('login'))
+        return redirect(url_for('home'))
 
 #inserting tweets into user table
 @app.route('/tweet',methods=["POST"])
