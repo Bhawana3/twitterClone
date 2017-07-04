@@ -1,8 +1,10 @@
+import os
+
 import flask
 from flask import Flask,request,json,render_template,session,redirect,url_for,escape,flash
 from flask.ext.mysql import MySQL
 from passlib.hash import sha256_crypt
-
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -382,10 +384,11 @@ def wall():
 
 
 # For upload profile pic
-UPLOAD_FOLDER = 'static/uploads'
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(APP_ROOT, 'static/uploads')
 ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif','.JPG']
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/upload', methods=['GET','POST'])
 def upload_file():
@@ -395,22 +398,30 @@ def upload_file():
             if request.method == 'POST':
                 file = request.files['photo']
                 extension = os.path.splitext(file.filename)[1]
-                if extension in ALLOWED_EXTENSIONS:
-                    filename = str(logged_in_user_id) + extension                               # filename should be uid + extension
-                    file.save(os.path.join(UPLOAD_FOLDER, filename))
-                    print "Image uploaded:",filename
-                    photo = 'uploads/'+filename
-                    conn = mysql.connect()
-                    cursor = conn.cursor()
-                    query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
-                    cursor.execute(query,(photo,str(logged_in_user_id)))
-                    conn.commit()
-                    conn.close()
 
-                    respStr = json.dumps({'message':'success'})
-                    resp = flask.Response(respStr)
-                    resp.headers['Content-Type'] = 'application/json'
-                    return resp
+                if file and extension in ALLOWED_EXTENSIONS:
+                    filename = str(logged_in_user_id) + extension                               # filename should be uid + extension
+                    filename = secure_filename(filename)
+
+                    try:
+                        app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+                        file.save(os.path.join(UPLOAD_FOLDER, filename))
+                        print "Image uploaded:", filename
+                        photo = 'uploads/' + filename
+                        conn = mysql.connect()
+                        cursor = conn.cursor()
+                        query = "UPDATE users SET profile_pic = %s WHERE uid = %s"
+                        cursor.execute(query, (photo, str(logged_in_user_id)))
+                        conn.commit()
+                        conn.close()
+
+                        respStr = json.dumps({'message': 'success'})
+                        resp = flask.Response(respStr)
+                        resp.headers['Content-Type'] = 'application/json'
+                        return resp
+                    except Exception as e:
+                        print e
+
                 else:
                     respStr = json.dumps({'message':'failure'})
                     resp = flask.Response(respStr)
@@ -431,7 +442,7 @@ def find_user():
             logged_in_user_id = session['uid']
             conn = mysql.connect()
             cursor = conn.cursor()
-            query1 ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s GROUP BY users.uid" % str(logged_in_user_id)
+            query1 ="SELECT  * FROM users LEFT OUTER JOIN followers ON users.uid = followers.followed_id WHERE users.uid <> %s" % str(logged_in_user_id)
             # group by finds unique row in table
             cursor.execute(query1)
             results = cursor.fetchall()
